@@ -9,28 +9,22 @@
  <body>
   <h1>InstaGroups</h1>
   <div>
-   <form id="user">
-   	<input type="text" placeholder="User">
-   	<input type="submit" value="Search Users">
-   </form>
-  </div>
-  <div>
-   <table id="users"></table>
-  </div>
-  <div>
-   <form id="media">
-   	<input type="text" placeholder="Media">
-   	<input type="submit" value="Search Media">
-   </form>
-  </div>
-  <div>
-   <table id="mediaResults"></table>
-  </div>
-  <div>
    <table id="groups"></table>
   </div>
   <div>
    <button id="new">Create Group</button>
+  </div>
+  <div>
+   <form>
+    <input type="radio" name="type" value="people">People</input>
+    <input type="radio" name="type" value="tags">Tags</input>
+    <input type="radio" name="type" value="places">Places</input>
+   	<input type="text" id="search" placeholder="Search">
+   	<input type="submit" value="Search">
+   </form>
+  </div>
+  <div>
+   <table id="results"></table>
   </div>
  </body>
 </html>
