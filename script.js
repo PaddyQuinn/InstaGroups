@@ -4,6 +4,7 @@ var handleUsers = function(data) {
 	var display = 0;
 	var row;
 	var cell;
+	// make sure correct data is returned
 	if (data.meta.code != 200) {
 		row = table.insertRow(display / 2);
 		cell = row.insertCell(0);
@@ -11,12 +12,13 @@ var handleUsers = function(data) {
 	} else {
 		var user;
 		var users = data.data;
+		// handle case when no data is returned
 		if (users.length < 1) {
 			row = table.insertRow(display / 2);
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
 		}
-		while (display < 10 && display < users.length) {
+		while (display < 10 && display < users.length) { // handle 20? because thats how much media
 			user = users[display];
 			if (display % 2 == 0) {
 				row = table.insertRow(display / 2);
@@ -39,12 +41,13 @@ var handleUsers = function(data) {
 	}
 };
 
-var handleTags = function(data) {
+var handleMedia = function(data) {
 	var table = $("#results")[0];
 	table.innerHTML = "";
 	var display = 0;
 	var row;
 	var cell;
+	// make sure correct data is returned
 	if (data.meta.code != 200) {
 		row = table.insertRow(display / 2);
 		cell = row.insertCell(0);
@@ -54,12 +57,13 @@ var handleTags = function(data) {
 		console.log(media);
 		var pv;
 		var content = "";
+		// handle case when no data is returned
 		if (media.length < 1) {
 			row = table.insertRow(display / 2);
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
 		}
-		while (display < 10 && display < media.length) {
+		while (display < 10 && display < media.length) { // handle 20? because thats how much media is returned
 			pv = media[display];
 			if (pv.type == "image") {
 				content += "<img src=\"" +
@@ -101,6 +105,15 @@ var handleTags = function(data) {
 	}
 };
 
+var getLocationId = function(data) {
+	//USE TOP LOCATION RESULT FROM DATA AS ID
+	//CHANGE TEXT IN SEARCH BOX TO NAME OF LOCATION!!!
+	$.ajax({url: "https://api.instagram.com/v1/locations/" + id + "/media/recent?access_token=" + access_token,
+			dataType: "jsonp",
+			success: handleMedia
+	});
+}
+
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
 $(document).ready(function() {
@@ -114,17 +127,23 @@ $(document).ready(function() {
 			var query = $("#search")[0].value;
 			if (query.length > 0) {
 				if (choice[0].value == "people") {
+					// query instagram api for users
 					$.ajax({url: "https://api.instagram.com/v1/users/search?q=" + query + "&access_token=" + access_token, 
 							dataType: "jsonp",
 							success: handleUsers
 					});
 				} else if (choice[0].value == "tags") {
+					// query instagram api for media based on tag
 					$.ajax({url: "https://api.instagram.com/v1/tags/" + query + "/media/recent?access_token=" + access_token, 
 							dataType: "jsonp",
-							success: handleTags
+							success: handleMedia
 					});
 				} else if (choice[0].value == "places") {
-					console.log("places");
+					//NEED TO USE GOOGLE MAPS API TO GET LAT AND LNG
+					$.ajax({url: "https://api.instagram.com/v1/locations/search?lat=" + lat + "&lng=" + lng + "&access_token=" + access_token, 
+							dataType: "jsonp",
+							success: getLocationId
+					});
 				}
 			}
 		}
