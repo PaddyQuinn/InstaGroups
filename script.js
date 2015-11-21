@@ -49,14 +49,13 @@ var submitForm = function() {
 };
 
 var handleUsers = function(data) {
-	var table = $("#results")[0];
+	var table = $("#searchResults")[0];
 	table.innerHTML = "";
-	var display = 0;
 	var row;
 	var cell;
 	// make sure correct data is returned
 	if (data.meta.code != 200) {
-		row = table.insertRow(display / 2);
+		row = table.insertRow(0);
 		cell = row.insertCell(0);
 		cell.innerHTML = data.meta.error_message;
 	} else {
@@ -64,37 +63,23 @@ var handleUsers = function(data) {
 		var users = data.data;
 		// handle case when no data is returned
 		if (users.length < 1) {
-			row = table.insertRow(display / 2);
+			row = table.insertRow(0);
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
 		}
-		while (display < 10 && display < users.length) { // handle 20? because thats how much media
-			user = users[display];
-			if (display % 2 == 0) {
-				row = table.insertRow(display / 2);
-				cell = row.insertCell(0);
-				cell.innerHTML = "<img src=\"" + 
-							 	 user.profile_picture + 
-							 	 "\"><br><a href=\"https://www.instagram.com/" 
-							 	 + user.username +
-							 	 "\">Instagram</a><a href=/Users/padraic/Documents/Columbia/Seventh%20Semester/UI%20Design/pmq2101_hw3/index.html>Recent Uploads</a>";
-		} else {
-				cell = row.insertCell(1);
-				cell.innerHTML = "<img src=\"" + 
-							 	 user.profile_picture + 
-							 	 "\"><br><a href=\"https://www.instagram.com/" 
-							 	 + user.username +
-							 	 "\">Instagram</a><a href=/Users/padraic/Documents/Columbia/Seventh%20Semester/UI%20Design/pmq2101_hw3/index.html>Recent Uploads</a>";
-			}
-			display++;
-		}
 	}
+	display(table, users, "users");
 };
 
 var handleMedia = function(data) {
-	var table = $("#results")[0];
+	var table;
+	if (this.url.indexOf("https://api.instagram.com/v1/users/") < 0) {
+		table = $("#searchResults")[0];
+	} else {
+		table = $("#userResults")[0];
+		$("#user")[0].innerHTML = data.data[0].user.username; //"User" SHOWS UP AT FIRST ON USERPAGE
+	}
 	table.innerHTML = "";
-	var display = 0;
 	var row;
 	var cell;
 	// make sure correct data is returned
@@ -104,7 +89,6 @@ var handleMedia = function(data) {
 		cell.innerHTML = data.meta.error_message;
 	} else {
 		var media = data.data;
-		var pv;
 		var content = "";
 		// handle case when no data is returned
 		if (media.length < 1) {
@@ -112,45 +96,69 @@ var handleMedia = function(data) {
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
 		}
-		var rowCount = 0;
-		var cellCount;
-		while (display < 20 && display < media.length) { // 20 is maximum media returned from api
-			pv = media[display];
-			if (pv.type == "image") {
+		display(table, media, "media");
+	}
+};
+
+var display = function(table, arr, type) {
+	var disp = 0;
+	var row;
+	var cell;
+	var rowCount = 0;
+	var cellCount;
+	var index;
+	var content = ""
+	while (disp < 20 && disp < arr.length) { // UI DESIGN DECISION TO HANDLE 20!!!
+		index = arr[disp];
+		if (type == "users") {
+			content = "<img src=\"" + 
+					  index.profile_picture + 
+					  "\"><br><a href=\"https://www.instagram.com/" 
+					  + index.username +
+					  "\">Instagram</a><button onclick=\"getRecent(" + index.id + ")\">Recent Uploads</button>";
+		} else if (type == "media") {
+			if (index.type == "image") {
 				content += "<img src=\"" +
-					   	   pv.images.standard_resolution.url +
+					   	   index.images.standard_resolution.url +
 					   	   "\">";
-			} else if (pv.type == "video") { // handles videos
+			} else if (index.type == "video") { // handles videos
 				content += "<video controls><source src=\"" +
-					   	   pv.videos.standard_resolution.url +
+					   	   index.videos.standard_resolution.url +
 					   	   "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
 			}
-			if (pv.caption != null) {
-				content += "<br>Caption: " + pv.caption.text;
+			if (index.caption != null) {
+				content += "<br>Caption: " + index.caption.text;
 			} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
 			content += "<br>NumLikes: " +
-					   pv.likes.count +
+					   index.likes.count +
 					   "<br>Time: " +
-					   pv.created_time +
+					   index.created_time +
 					   "<br><a href=\"" +
-					   pv.link +
+					   index.link +
 					   "\">Instagram</a>";
 			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
-			if (display % 5 == 0) {
-				row = table.insertRow(rowCount);
-				cellCount = 0;
-				cell = row.insertCell(cellCount);
-				cell.innerHTML = content;
-				rowCount++;
-			} else {
-				cell = row.insertCell(cellCount);
-				cell.innerHTML = content;
-				cellCount++;
-			}
-			content = "";
-			display++;
 		}
+		if (disp % 5 == 0) {
+			row = table.insertRow(rowCount);
+			cellCount = 0;
+			cell = row.insertCell(cellCount);
+			rowCount++;
+		} else {
+			cell = row.insertCell(cellCount);
+		}
+		cellCount++;
+		cell.innerHTML = content;
+		content = "";
+		disp++;
 	}
+};
+
+var getRecent = function(id) {
+	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
+			dataType: "jsonp",
+			success: handleMedia				
+	});
+	user();
 };
 
 var searchOnCoordinates = function(data) {
@@ -170,13 +178,24 @@ var searchOnCoordinates = function(data) {
 		cell.innerHTML = "No results.";
 	}
 };
+var createTable = function() {
 
-var newGroup = function() {
-	$("#homepage")[0].hidden = true;
+};
+
+var search = function() {
+	$("#groupspage")[0].hidden = true;
+	$("#userpage")[0].hidden = true;
+	$("#searchpage")[0].hidden = false;
+};
+
+var groups = function() {
+	$("#searchpage")[0].hidden = true;
+	$("#userpage")[0].hidden = true;
 	$("#groupspage")[0].hidden = false;
 };
 
-var home = function() {
+var user = function() {
+	$("#searchpage")[0].hidden = true;
 	$("#groupspage")[0].hidden = true;
-	$("#homepage")[0].hidden = false;
+	$("#userpage")[0].hidden = false;
 };

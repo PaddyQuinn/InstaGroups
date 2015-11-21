@@ -8,14 +8,15 @@
  </head>
  <body>
   <!-- PUT ALL BUTTONS IN HEADER NO CREATE A GROUP BUTTON JUST ADD TO GROUP THAT AUTOMATICALLY ADDS TO NEW GROUP IF NONE PRESENT (UI DECISION)-->
-  <div id="homepage">
-   <h1>Welcome to InstaGroups!</h1>
+  <nav>
    <div>
-    <table id="groups"></table>
+    <button onclick="search()">Search</button>
+    <button onclick="groups()">InstaGroups</button>
+    <button onclick="user()">User</button>
    </div>
-   <div>
-    <button onclick="newGroup()">Create Group</button>
-   </div>
+  </nav>
+  <div id="searchpage" hidden>
+   <h1>Search</h1>
    <div>
     <form onsubmit="submitForm()">
      <input type="radio" name="type" value="people">People</input>
@@ -26,15 +27,26 @@
     </form>
    </div>
    <div>
-    <table id="results"></table>
+    <table id="searchResults"></table>
    </div>
   </div>
-  <div id="groupspage" hidden>
-   <h1>Your Instagroups</h1>
-   <button onclick="home()">Home</button>
+  <div id="groupspage"> <!-- UI DECISION TO START ON GROUPS PAGE -->
+   <h1>InstaGroups</h1>
+    <div>
+      <table id="groups">
+       <tbody>
+        <tr>
+         <td>
+          <button onclick="createTable()">New Table</button>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+   </div>
   </div>
   <div id="userpage" hidden>
-   <h1>User</h1>
+   <h1 id="user">User</h1> <!-- NEED BETTER ORIGINAL USERPAGE WHEN BLANK, POSSIBLY SEARCH BUTTON? -->
+   <table id="userResults"></table>
   </div>
  </body>
 </html>
