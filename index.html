@@ -7,24 +7,34 @@
   <script type="text/javascript" src="script.js"></script>
  </head>
  <body>
-  <h1>InstaGroups</h1>
-  <div>
-   <table id="groups"></table>
+  <!-- PUT ALL BUTTONS IN HEADER NO CREATE A GROUP BUTTON JUST ADD TO GROUP THAT AUTOMATICALLY ADDS TO NEW GROUP IF NONE PRESENT (UI DECISION)-->
+  <div id="homepage">
+   <h1>Welcome to InstaGroups!</h1>
+   <div>
+    <table id="groups"></table>
+   </div>
+   <div>
+    <button onclick="newGroup()">Create Group</button>
+   </div>
+   <div>
+    <form onsubmit="submitForm()">
+     <input type="radio" name="type" value="people">People</input>
+     <input type="radio" name="type" value="tags">Tags</input>
+     <input type="radio" name="type" value="places">Places</input>
+   	 <input type="text" id="search" placeholder="Search">
+   	 <input type="submit" value="Search">
+    </form>
+   </div>
+   <div>
+    <table id="results"></table>
+   </div>
   </div>
-  <div>
-   <button id="new">Create Group</button>
+  <div id="groupspage" hidden>
+   <h1>Your Instagroups</h1>
+   <button onclick="home()">Home</button>
   </div>
-  <div>
-   <form>
-    <input type="radio" name="type" value="people">People</input>
-    <input type="radio" name="type" value="tags">Tags</input>
-    <input type="radio" name="type" value="places">Places</input>
-   	<input type="text" id="search" placeholder="Search">
-   	<input type="submit" value="Search">
-   </form>
-  </div>
-  <div>
-   <table id="results"></table>
+  <div id="userpage" hidden>
+   <h1>User</h1>
   </div>
  </body>
 </html>

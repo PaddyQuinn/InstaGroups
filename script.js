@@ -1,3 +1,53 @@
+var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
+
+var submitForm = function() {
+	event.preventDefault();
+	var choice = $("input:radio[name=type]:checked");
+	var table = $("#results")[0];
+	if (choice.length > 0) {
+		var query = $("#search")[0].value;
+		var invalid; //UI DECISION TO MAKE SURE VALID INPUT
+		if (query.length > 0) {
+			if (choice[0].value == "people") {
+				// query instagram api for users
+				invalid = /\?/; // check for question marks
+				if (!invalid.test(query)) {
+					$.ajax({url: "https://api.instagram.com/v1/users/search?q=" + query + "&access_token=" + access_token, 
+							dataType: "jsonp",
+							success: handleUsers
+					});
+				} else {
+					table.innerHTML = "Invalid input!";
+				}
+			} else if (choice[0].value == "tags") {
+				// query instagram api for media based on tag
+				invalid = /[\[\]\\\/~`!@#$%^&*()-=+{}|;':"<>,.? ]/; // regular expression for invalid input
+				if (!invalid.test(query)) {
+					$.ajax({url: "https://api.instagram.com/v1/tags/" + query + "/media/recent?access_token=" + access_token, 
+							dataType: "jsonp",
+							success: handleMedia
+					});
+				} else {
+					table.innerHTML = "Invalid input!";
+				}
+			} else if (choice[0].value == "places") {
+				// query google maps api for latitude and longitude of search query
+				invalid = /\?/; // check for question marks
+				if (!invalid.test(query)) {
+					$.ajax({url: "https://maps.googleapis.com/maps/api/geocode/json?address=" + query + "&key=AIzaSyAEl6rZYUeweCN-LTlruBSiWFOPHlC59P8", 
+							dataType: "json",
+							success: searchOnCoordinates
+					});
+				} else {
+					table.innerHTML = "Invalid input!";
+				}
+			}
+		}
+	} else {
+		table.innerHTML = "Please select a filter!";
+	}
+};
+
 var handleUsers = function(data) {
 	var table = $("#results")[0];
 	table.innerHTML = "";
@@ -49,55 +99,53 @@ var handleMedia = function(data) {
 	var cell;
 	// make sure correct data is returned
 	if (data.meta.code != 200) {
-		row = table.insertRow(display / 2);
+		row = table.insertRow(0);
 		cell = row.insertCell(0);
 		cell.innerHTML = data.meta.error_message;
 	} else {
 		var media = data.data;
-		console.log(media);
 		var pv;
 		var content = "";
 		// handle case when no data is returned
 		if (media.length < 1) {
-			row = table.insertRow(display / 2);
+			row = table.insertRow(0);
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
 		}
-		while (display < 10 && display < media.length) { // handle 20? because thats how much media is returned
+		var rowCount = 0;
+		var cellCount;
+		while (display < 20 && display < media.length) { // 20 is maximum media returned from api
 			pv = media[display];
 			if (pv.type == "image") {
 				content += "<img src=\"" +
 					   	   pv.images.standard_resolution.url +
-					   	   "\"><br>Caption: " +
-					   	   pv.caption.text +
-					   	   "<br>NumLikes: " +
-					   	   pv.likes.count +
-					   	   "<br>Time: " +
-					   	   pv.created_time +
-					   	   "<br><a href=\"" +
-					   	   pv.link +
-					   	   "\">Instagram</a>";
-			} else if (pv.type == "video") {
+					   	   "\">";
+			} else if (pv.type == "video") { // handles videos
 				content += "<video controls><source src=\"" +
 					   	   pv.videos.standard_resolution.url +
-					   	   "\" type=\"video/mp4\">Your browser does not support the video tag</video><br>Caption: " +
-					   	   pv.caption.text +
-					   	   "<br>NumLikes: " +
-					   	   pv.likes.count +
-					   	   "<br>Time: " +
-					   	   pv.created_time +
-					   	   "<br><a href=\"" +
-					   	   pv.link +
-					   	   "\">Instagram</a>";
+					   	   "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
 			}
-			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!
-			if (display % 2 == 0) {
-				row = table.insertRow(display / 2);
-				cell = row.insertCell(0);
+			if (pv.caption != null) {
+				content += "<br>Caption: " + pv.caption.text;
+			} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
+			content += "<br>NumLikes: " +
+					   pv.likes.count +
+					   "<br>Time: " +
+					   pv.created_time +
+					   "<br><a href=\"" +
+					   pv.link +
+					   "\">Instagram</a>";
+			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
+			if (display % 5 == 0) {
+				row = table.insertRow(rowCount);
+				cellCount = 0;
+				cell = row.insertCell(cellCount);
 				cell.innerHTML = content;
+				rowCount++;
 			} else {
-				cell = row.insertCell(1);
+				cell = row.insertCell(cellCount);
 				cell.innerHTML = content;
+				cellCount++;
 			}
 			content = "";
 			display++;
@@ -105,48 +153,30 @@ var handleMedia = function(data) {
 	}
 };
 
-var getLocationId = function(data) {
-	//USE TOP LOCATION RESULT FROM DATA AS ID
-	//CHANGE TEXT IN SEARCH BOX TO NAME OF LOCATION!!!
-	$.ajax({url: "https://api.instagram.com/v1/locations/" + id + "/media/recent?access_token=" + access_token,
-			dataType: "jsonp",
-			success: handleMedia
-	});
-}
+var searchOnCoordinates = function(data) {
+	if (data.status == "OK") {
+		var coordinates = data.results[0].geometry.location;
+		var lat = coordinates.lat;
+		var lng = coordinates.lng;
+		$.ajax({url: "https://api.instagram.com/v1/media/search?lat=" + lat + "&lng=" + lng + "&access_token=" + access_token,
+				dataType: "jsonp",
+				success: handleMedia				
+		});
+	} else {
+		var table = $("#results")[0];
+		table.innerHTML = "";
+		var row = table.insertRow(0);
+		var cell = row.insertCell(0);
+		cell.innerHTML = "No results.";
+	}
+};
 
-var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
+var newGroup = function() {
+	$("#homepage")[0].hidden = true;
+	$("#groupspage")[0].hidden = false;
+};
 
-$(document).ready(function() {
-	$("#new")[0].addEventListener("click", function(event) {
-		console.log("new");
-	});
-	$("form")[0].addEventListener("submit", function(event) {
-		event.preventDefault();
-		var choice = $("input:radio[name=type]:checked");
-		if (choice.length > 0) {
-			var query = $("#search")[0].value;
-			if (query.length > 0) {
-				if (choice[0].value == "people") {
-					// query instagram api for users
-					$.ajax({url: "https://api.instagram.com/v1/users/search?q=" + query + "&access_token=" + access_token, 
-							dataType: "jsonp",
-							success: handleUsers
-					});
-				} else if (choice[0].value == "tags") {
-					// query instagram api for media based on tag
-					$.ajax({url: "https://api.instagram.com/v1/tags/" + query + "/media/recent?access_token=" + access_token, 
-							dataType: "jsonp",
-							success: handleMedia
-					});
-				} else if (choice[0].value == "places") {
-					//NEED TO USE GOOGLE MAPS API TO GET LAT AND LNG
-					$.ajax({url: "https://api.instagram.com/v1/locations/search?lat=" + lat + "&lng=" + lng + "&access_token=" + access_token, 
-							dataType: "jsonp",
-							success: getLocationId
-					});
-				}
-			}
-		}
-	});
-
-});
+var home = function() {
+	$("#groupspage")[0].hidden = true;
+	$("#homepage")[0].hidden = false;
+};
