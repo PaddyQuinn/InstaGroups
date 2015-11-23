@@ -3,7 +3,7 @@ var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 var submitForm = function() {
 	event.preventDefault();
 	var choice = $("input:radio[name=type]:checked");
-	var table = $("#results")[0];
+	var table = $("#searchResults")[0];
 	if (choice.length > 0) {
 		var query = $("#search")[0].value;
 		var invalid; //UI DECISION TO MAKE SURE VALID INPUT
@@ -96,7 +96,7 @@ var handleMedia = function(data) {
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
 		}
-		display(table, media, "media");
+		display(table, media, "media"); //HANDLE MEDIA DISPLAY LIKE TIMELINE
 	}
 };
 
@@ -138,7 +138,7 @@ var display = function(table, arr, type) {
 					   "\">Instagram</a>";
 			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
 		}
-		if (disp % 5 == 0) {
+		if (disp % 5 == 0) { // add a new row after 5 cells
 			row = table.insertRow(rowCount);
 			cellCount = 0;
 			cell = row.insertCell(cellCount);
@@ -171,7 +171,7 @@ var searchOnCoordinates = function(data) {
 				success: handleMedia				
 		});
 	} else {
-		var table = $("#results")[0];
+		var table = $("#searchResults")[0];
 		table.innerHTML = "";
 		var row = table.insertRow(0);
 		var cell = row.insertCell(0);
@@ -179,7 +179,26 @@ var searchOnCoordinates = function(data) {
 	}
 };
 var createTable = function() {
-
+	var table = $("#groups")[0];
+	console.log($("#groups"));
+	var rows = table.rows;
+	var rowIndex = rows.length - 1;
+	var row = rows[rowIndex];
+	var cellIndex = row.cells.length - 1;
+	var cell;
+	if (cellIndex == 4) { // add a new row after 5 cells 
+		rowIndex++;
+		row = table.insertRow(rowIndex);
+		cellIndex = 0;
+		cell = row.insertCell(cellIndex);
+		cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
+		row.previousElementSibling.cells[4].innerHTML = "group";
+	} else {
+		cellIndex++;
+		cell = row.insertCell(cellIndex);
+		cell.innerHTML = cell.previousElementSibling.innerHTML;
+		cell.previousElementSibling.innerHTML = "group";
+	}
 };
 
 var search = function() {
