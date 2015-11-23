@@ -183,6 +183,7 @@ var searchOnCoordinates = function(data) {
 		cell.innerHTML = "No results.";
 	}
 };
+
 var createGroup = function() {
 	var table = $("#groups")[0];
 	var rows = table.rows;
@@ -190,31 +191,33 @@ var createGroup = function() {
 	var row = rows[rowIndex];
 	var cellIndex = row.cells.length - 1;
 	var cell;
+	var id;
 	if (cellIndex == 4) { // add a new row after 5 cells 
 		row = table.insertRow(++rowIndex);
 		cellIndex = 0;
 		cell = row.insertCell(cellIndex);
 		cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
-		row.previousElementSibling.cells[4].innerHTML = "<button id=\"" + ((rowIndex - 1) * 5 + 4) + "\"onclick=\"deleteGroup(this.id)\">Delete Group</button>";
+		id = (rowIndex - 1) * 5 + 4;
+		row.previousElementSibling.cells[4].innerHTML = "<div>" + id + "</div><button id=\"" + id + "\"onclick=\"deleteGroup(this.id)\">Delete Group</button>";
 	} else {
 		cell = row.insertCell(++cellIndex);
 		cell.innerHTML = cell.previousElementSibling.innerHTML;
-		cell.previousElementSibling.innerHTML = "<button id=\"" + (rowIndex * 5 + cellIndex - 1) + "\"onclick=\"deleteGroup(this.id)\">Delete Group</button>";
+		id = rowIndex * 5 + cellIndex - 1;
+		cell.previousElementSibling.innerHTML = "<div>" + id + "</div><button id=\"" + id + "\"onclick=\"deleteGroup(this.id)\">Delete Group</button>";
 	}
 };
 
 var deleteGroup = function(id) {
-	console.log($("#groups"));
 	var rowIndex = Math.floor(id / 5);
 	var cellIndex = id % 5;
 	var table = $("#groups")[0];
-	console.log(table);
 	var rows = table.rows;
 	var row;
 	var nextRow;
 	var cells;
 	var cell;
 	var nextCell;
+	var children;
 	var button;
 	while (rowIndex < rows.length) { // loop through all rows
 		row = rows[rowIndex++]
@@ -224,8 +227,9 @@ var deleteGroup = function(id) {
 			nextCell = cell.nextElementSibling;
 			if (nextCell != null) { // overwrite cell with next cell if it is not the last of its row
 				cell.innerHTML = nextCell.innerHTML;
-				button = cell.children[0].id;
-				if (button != "") { // avoid unwanted side effect of assigning id to new group button
+				children = cell.children;
+				button = children[children.length - 1];
+				if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
 					button.id--;
 				}
 			} else { // handle cells that are the last of its row
@@ -235,9 +239,11 @@ var deleteGroup = function(id) {
 					nextRow = row.nextElementSibling;
 					if (nextRow != null) { // overwrite cell with next cell if it has a next row
 						cell.innerHTML = nextRow.cells[0].innerHTML;
-						button = cell.children[0].id;
-						if (button != "") { // avoid unwanted side effect of assigning id to new group button
+						children = cell.children;
+						button = children[children.length - 1];
+						if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
 							button.id--;
+
 						}
 					} else { // otherwise just delete cell
 						row.deleteCell(cellIndex);
@@ -249,11 +255,9 @@ var deleteGroup = function(id) {
 		cellIndex = 0;
 	}
 	var lastRowIndex = rows.length - 1;
-	console.log(lastRowIndex);
 	if (rows[lastRowIndex].cells.length == 0) {
 		table.deleteRow(lastRowIndex);
 	}
-	console.log(rows);
 }
 
 var search = function() {
