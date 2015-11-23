@@ -59,16 +59,40 @@ var handleUsers = function(data) {
 		cell = row.insertCell(0);
 		cell.innerHTML = data.meta.error_message;
 	} else {
-		var user;
 		var users = data.data;
 		// handle case when no data is returned
 		if (users.length < 1) {
 			row = table.insertRow(0);
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
+		} else {
+			var index = 0;
+			var rowCount = 0;
+			var cellCount;
+			var user;
+			var content = ""
+			while (index < 20 && index < users.length) { // UI DESIGN DECISION TO HANDLE 20!!!
+				user = users[index];
+				content = "<img src=\"" + 
+						  user.profile_picture + 
+						  "\"><br><a href=\"https://www.instagram.com/" 
+						  + user.username +
+						  "\">Instagram</a><button onclick=\"getRecent(" + user.id + ")\">Recent Uploads</button>";
+				if (index % 5 == 0) { // add a new row after 5 cells
+					row = table.insertRow(rowCount);
+					cellCount = 0;
+					cell = row.insertCell(cellCount);
+					rowCount++;
+				} else {
+					cell = row.insertCell(cellCount);
+				}
+				cellCount++;
+				cell.innerHTML = content;
+				content = "";
+				index++;
+			}
 		}
 	}
-	display(table, users, "users");
 };
 
 var handleMedia = function(data) {
@@ -95,63 +119,44 @@ var handleMedia = function(data) {
 			row = table.insertRow(0);
 			cell = row.insertCell(0);
 			cell.innerHTML = "No results."
+		} else {
+			var index = 0;
+			var pv;
+			while (index < media.length) {
+				pv = media[index];
+				if (pv.type == "image") {
+					content += "<img src=\"" +
+				    pv.images.standard_resolution.url +
+			  	    "\">";
+				} else if (pv.type == "video") { // handles videos
+					content += "<video controls><source src=\"" +
+			   	    pv.videos.standard_resolution.url +
+				    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
+				}
+				//ADD POSTING USER -> SO THEY CAN BE ADDED TO GROUP (UI DECISION)
+				if (pv.caption != null) {
+					content += "<br>Caption: " + pv.caption.text;
+				} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
+				content += "<br>NumLikes: " +
+				   		   pv.likes.count +
+						   "<br>Time: " +
+						   convert(pv.created_time) +
+						   "<br><a href=\"" +
+						   pv.link +
+						   "\">Instagram</a>";
+				//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
+				row = table.insertRow(index++);
+				cell = row.insertCell(0);
+				cell.innerHTML = content;
+				content = "";
+			}
 		}
-		display(table, media, "media"); //HANDLE MEDIA DISPLAY LIKE TIMELINE
 	}
 };
 
-var display = function(table, arr, type) {
-	var disp = 0;
-	var row;
-	var cell;
-	var rowCount = 0;
-	var cellCount;
-	var index;
-	var content = ""
-	while (disp < 20 && disp < arr.length) { // UI DESIGN DECISION TO HANDLE 20!!!
-		index = arr[disp];
-		if (type == "users") {
-			content = "<img src=\"" + 
-					  index.profile_picture + 
-					  "\"><br><a href=\"https://www.instagram.com/" 
-					  + index.username +
-					  "\">Instagram</a><button onclick=\"getRecent(" + index.id + ")\">Recent Uploads</button>";
-		} else if (type == "media") {
-			if (index.type == "image") {
-				content += "<img src=\"" +
-					   	   index.images.standard_resolution.url +
-					   	   "\">";
-			} else if (index.type == "video") { // handles videos
-				content += "<video controls><source src=\"" +
-					   	   index.videos.standard_resolution.url +
-					   	   "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
-			}
-			if (index.caption != null) {
-				content += "<br>Caption: " + index.caption.text;
-			} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
-			content += "<br>NumLikes: " +
-					   index.likes.count +
-					   "<br>Time: " +
-					   index.created_time +
-					   "<br><a href=\"" +
-					   index.link +
-					   "\">Instagram</a>";
-			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
-		}
-		if (disp % 5 == 0) { // add a new row after 5 cells
-			row = table.insertRow(rowCount);
-			cellCount = 0;
-			cell = row.insertCell(cellCount);
-			rowCount++;
-		} else {
-			cell = row.insertCell(cellCount);
-		}
-		cellCount++;
-		cell.innerHTML = content;
-		content = "";
-		disp++;
-	}
-};
+var convert = function(millis) { //TODO!!!
+	return millis;
+}
 
 var getRecent = function(id) {
 	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
