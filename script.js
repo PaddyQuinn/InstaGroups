@@ -1,6 +1,6 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
-var home = function() {
+var goHome = function() {
 	$("#message")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
@@ -299,7 +299,7 @@ var addToGroup = function(select, pic, username, id) {
 	} else {
 		$("#message")[0].innerHTML = username + " already belongs to " + groupName;
 	}
-	groups();
+	goHome();
 	select[0].selected = true;
 };
 
