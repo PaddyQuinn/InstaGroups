@@ -1,5 +1,25 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
+var search = function() {
+	$("#message")[0].innerHTML = "";
+	$("#groupspage")[0].hidden = true;
+	$("#userpage")[0].hidden = true;
+	$("#searchpage")[0].hidden = false;
+};
+
+var groups = function() {
+	$("#searchpage")[0].hidden = true;
+	$("#userpage")[0].hidden = true;
+	$("#groupspage")[0].hidden = false;
+};
+
+var user = function() {
+	$("#message")[0].innerHTML = "";
+	$("#searchpage")[0].hidden = true;
+	$("#groupspage")[0].hidden = true;
+	$("#userpage")[0].hidden = false;
+};
+
 var submitForm = function() {
 	event.preventDefault();
 	var choice = $("input:radio[name=type]:checked");
@@ -70,14 +90,21 @@ var handleUsers = function(data) {
 			var rowCount = 0;
 			var cellCount;
 			var user;
-			var content = ""
+			var content = "";
+			var options = getGroups();
 			while (index < 20 && index < users.length) { // UI DESIGN DECISION TO HANDLE 20!!!
 				user = users[index];
 				content = "<img src=\"" + 
 						  user.profile_picture + 
 						  "\"><br><a href=\"https://www.instagram.com/" 
 						  + user.username +
-						  "\">Instagram</a><button onclick=\"getRecent(" + user.id + ")\">Recent Uploads</button>";
+						  "\">Instagram</a><button onclick=\"getRecent(" + 
+						  user.id + 
+						  ")\">Recent Uploads</button><select onchange=\"addToGroup(this, '" + 
+						  user.username + 
+						  "')\"><option selected disabled>Choose A Group!</option>" + // MUST BE ABLE TO ADD TO NEW GROUP
+						  options +
+						  "</select>"
 				if (index % 5 == 0) { // add a new row after 5 cells
 					row = table.insertRow(rowCount);
 					cellCount = 0;
@@ -93,6 +120,40 @@ var handleUsers = function(data) {
 			}
 		}
 	}
+};
+
+var getGroups = function() {
+	var groups = $(".groupName");
+	var ret = "";
+	if (groups.length > 0) {
+		var groupName;
+		for (var i = 0; i < groups.length; i++) {
+			groupName = groups[i].id;
+			ret += "<option class=\"" + groupName + "\">" + groupName + "</option>";
+		}
+	}
+	return ret;
+};
+
+var getRecent = function(id) {
+	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
+			dataType: "jsonp",
+			success: handleMedia				
+	});
+	//ON READY STATE??
+	user();
+};
+
+var addToGroup = function(select, username) {
+	var groupName = select.value;
+	if ($("#" + groupName + " ." + username).length < 1) { // check if user is already in group
+		$("#" + groupName)[0].children[0].innerHTML += "<li class=\"" + username + "\">" + username + "</li>";
+		$("#message")[0].innerHTML = username + " was successfully added to " + groupName;
+	} else {
+		$("#message")[0].innerHTML = username + " already belongs to " + groupName;
+	}
+	groups();
+	select[0].selected = true;
 };
 
 var handleMedia = function(data) {
@@ -133,7 +194,7 @@ var handleMedia = function(data) {
 			   	    pv.videos.standard_resolution.url +
 				    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
 				}
-				//ADD POSTING USER -> SO THEY CAN BE ADDED TO GROUP (UI DECISION)
+				//ADD POSTING USER -> SO THEY CAN BE ADDED TO GROUP (REQUIRED)
 				if (pv.caption != null) {
 					content += "<br>Caption: " + pv.caption.text;
 				} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
@@ -158,14 +219,6 @@ var convert = function(millis) { //TODO!!!
 	return millis;
 }
 
-var getRecent = function(id) {
-	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
-			dataType: "jsonp",
-			success: handleMedia				
-	});
-	user();
-};
-
 var searchOnCoordinates = function(data) {
 	if (data.status == "OK") {
 		var coordinates = data.results[0].geometry.location;
@@ -184,7 +237,8 @@ var searchOnCoordinates = function(data) {
 	}
 };
 
-var createGroup = function() {
+var createGroup = function() { //POTENTIALLY SEPARATE VIEW FOR GROUPS
+	$("#message")[0].innerHTML = "";
 	var table = $("#groups")[0];
 	var rows = table.rows;
 	var rowIndex = rows.length - 1;
@@ -192,25 +246,61 @@ var createGroup = function() {
 	var cellIndex = row.cells.length - 1;
 	var cell;
 	var id;
+	var groupName;
 	if (cellIndex == 4) { // add a new row after 5 cells 
 		row = table.insertRow(++rowIndex);
 		cellIndex = 0;
 		cell = row.insertCell(cellIndex);
 		cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
 		id = (rowIndex - 1) * 5 + 4;
-		row.previousElementSibling.cells[4].innerHTML = "<div>" + id + "</div><button id=\"" + id + "\"onclick=\"deleteGroup(this.id)\">Delete Group</button>";
+		groupName = checkGroupName(id);
+		row.previousElementSibling.cells[4].innerHTML = "<div id=\"" + 
+														groupName + 
+														"\" class=\"groupName\">" + 
+														groupName + 
+														"<ul></ul></div><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+		addToMenus(groupName);
 	} else {
 		cell = row.insertCell(++cellIndex);
 		cell.innerHTML = cell.previousElementSibling.innerHTML;
 		id = rowIndex * 5 + cellIndex - 1;
-		cell.previousElementSibling.innerHTML = "<div>" + id + "</div><button id=\"" + id + "\"onclick=\"deleteGroup(this.id)\">Delete Group</button>";
+		groupName = checkGroupName(id);
+		cell.previousElementSibling.innerHTML = "<div id=\"" + 
+												groupName + 
+												"\" class=\"groupName\">" + 
+												groupName + 
+												"<ul></ul></div><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+		addToMenus(groupName);
+	}
+	console.log($("html")[0]);
+};
+
+var checkGroupName = function(groupName) {
+	//groupName = groupName.replace(/ /g, "+"); ENFORCE UNIQUE GROUP NAMES
+	if ($("#" + groupName).length > 0) {
+		return checkGroupName(groupName + "-1");
+	} else {
+		return groupName;
+	}
+}
+
+var addToMenus = function(groupName) {
+	var menus = $("select");
+	var menu;
+	for (var i = 0; i < menus.length; i++) {
+		menu = menus[i];
+		menu.innerHTML = menu.innerHTML + "<option class=\"" + groupName + "\">" + groupName + "</option>";
 	}
 };
 
-var deleteGroup = function(id) {
-	var rowIndex = Math.floor(id / 5);
-	var cellIndex = id % 5;
+var deleteGroup = function(button) {
+	$("#message")[0].innerHTML = "";
+	var cell = button.parentElement;
+	var cellIndex = cell.cellIndex;
+	var rowIndex = cell.parentElement.rowIndex;
 	var table = $("#groups")[0];
+	var groupName = table.rows[rowIndex].cells[cellIndex].children[0].id;
+	$("." + groupName).remove();
 	var rows = table.rows;
 	var row;
 	var nextRow;
@@ -258,22 +348,5 @@ var deleteGroup = function(id) {
 	if (rows[lastRowIndex].cells.length == 0) {
 		table.deleteRow(lastRowIndex);
 	}
-}
-
-var search = function() {
-	$("#groupspage")[0].hidden = true;
-	$("#userpage")[0].hidden = true;
-	$("#searchpage")[0].hidden = false;
-};
-
-var groups = function() {
-	$("#searchpage")[0].hidden = true;
-	$("#userpage")[0].hidden = true;
-	$("#groupspage")[0].hidden = false;
-};
-
-var user = function() {
-	$("#searchpage")[0].hidden = true;
-	$("#groupspage")[0].hidden = true;
-	$("#userpage")[0].hidden = false;
+	console.log($("html")[0]);
 };
