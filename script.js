@@ -1,7 +1,6 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
 var goHome = function() {
-	$("#message")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -13,7 +12,7 @@ var group = function() {
 	$("#homepage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
-	$("#grouppage")[0].hidden = false;
+	$("#grouppage")[0].hidden = false; //HANDLE CASE WHERE USER ADDS SOMEONE TO GROUP THEN PRESSES GROUP BUTTON
 };
 
 var user = function() {
@@ -80,8 +79,41 @@ var checkGroupName = function(groupName) {
 };
 
 var viewGroup = function(button) {
-	console.log($("button"));
-	console.log(button);
+	var div = button.parentElement.children[0];
+	var groupName = div.id;
+	$("#group")[0].innerHTML = groupName;
+	var list = div.children[0].children;
+	var table = $("#groupContents")[0];
+	table.innerHTML = "";
+	var row;
+	var cell;
+	var content;
+	var rowIndex = 0;
+	var cellIndex;
+	var i = 0;
+	while (i < list.length) {
+		if (i % 3 == 0) {
+			content = "<img src=\"" + 
+					  list[i++].innerHTML + 
+					  "\"><br><a href=\"https://www.instagram.com/" + 
+					  list[i].innerHTML +
+					  "\">" + 
+					  list[i++].innerHTML + 
+					  "</a><button onclick=\"getRecent(" + 
+					  list[i++] + 
+					  ")\">Recent Uploads</button>";
+			if ((i - 3) % 15 == 0) {
+				console.log(i);
+				row = table.insertRow(rowIndex++);
+				cellIndex = 0;
+				cell = row.insertCell(cellIndex++);
+			} else {
+				cell = row.insertCell(cellIndex++);
+			}
+		}
+		cell.innerHTML = content;
+	}
+	group();
 };
 
 var deleteGroup = function(button) {
@@ -206,16 +238,12 @@ var handleUsers = function(data) {
 	var cell;
 	// make sure correct data is returned
 	if (data.meta.code != 200) {
-		row = table.insertRow(0);
-		cell = row.insertCell(0);
-		cell.innerHTML = data.meta.error_message;
+		table.innerHTML = data.meta.error_message;
 	} else {
 		var users = data.data;
 		// handle case when no data is returned
 		if (users.length < 1) {
-			row = table.insertRow(0);
-			cell = row.insertCell(0);
-			cell.innerHTML = "No results."
+			table.innerHTML = "No results."
 		} else {
 			var index = 0;
 			var rowCount = 0;
@@ -229,7 +257,9 @@ var handleUsers = function(data) {
 						  user.profile_picture + 
 						  "\"><br><a href=\"https://www.instagram.com/" 
 						  + user.username +
-						  "\">Instagram</a><button onclick=\"getRecent(" + 
+						  "\">" + 
+						  user.username + 
+						  "</a><button onclick=\"getRecent(" + 
 						  user.id + 
 						  ")\">Recent Uploads</button><select onchange=\"addToGroup(this, '" + 
 						  user.profile_picture + 
@@ -284,12 +314,12 @@ var addToGroup = function(select, pic, username, id) {
 	if ($("#" + groupName + " ." + username).length < 1) { // check if user is already in group
 		$("#" + groupName)[0].children[0].innerHTML += "<li class=\"" + 
 													   username + 
-													   "\">" + 
-													   username + 
-													   "</li><li class=\"" + 
-													   username + 
 													   "\" hidden>" +
 													   pic +
+													   "</li><li class=\"" +
+													   username + 
+													   "\">" + 
+													   username + 
 													   "</li><li class=\"" + 
 													   username + 
 													   "\" hidden>" + 
@@ -316,17 +346,13 @@ var handleMedia = function(data) {
 	var cell;
 	// make sure correct data is returned
 	if (data.meta.code != 200) {
-		row = table.insertRow(0);
-		cell = row.insertCell(0);
-		cell.innerHTML = data.meta.error_message;
+		table.innerHTML = data.meta.error_message;
 	} else {
 		var media = data.data;
 		var content = "";
 		// handle case when no data is returned
 		if (media.length < 1) {
-			row = table.insertRow(0);
-			cell = row.insertCell(0);
-			cell.innerHTML = "No results."
+			table.innerHTML = "No results."
 		} else {
 			var index = 0;
 			var pv;
@@ -377,9 +403,6 @@ var searchOnCoordinates = function(data) {
 		});
 	} else {
 		var table = $("#searchResults")[0];
-		table.innerHTML = "";
-		var row = table.insertRow(0);
-		var cell = row.insertCell(0);
-		cell.innerHTML = "No results.";
+		table.innerHTML = "No results.";
 	}
 };
