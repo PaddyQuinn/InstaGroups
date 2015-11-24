@@ -1,6 +1,7 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
 var goHome = function() {
+	$("#message")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -31,8 +32,7 @@ var search = function() {
 	$("#searchpage")[0].hidden = false;
 };
 
-var createGroup = function() { //POTENTIALLY SEPARATE VIEW FOR GROUPS
-	$("#message")[0].innerHTML = "";
+var createGroup = function() {
 	var table = $("#groups")[0];
 	var rows = table.rows;
 	var rowIndex = rows.length - 1;
@@ -117,7 +117,6 @@ var viewGroup = function(button) {
 };
 
 var deleteGroup = function(button) {
-	$("#message")[0].innerHTML = "";
 	var cell = button.parentElement;
 	var cellIndex = cell.cellIndex;
 	var rowIndex = cell.parentElement.rowIndex;
@@ -326,10 +325,42 @@ var addToGroup = function(select, pic, username, id) {
 													   id +
 													   "</li>";
 		$("#message")[0].innerHTML = username + " was successfully added to " + groupName;
+		var header = $("#group")[0];
+		if (header.innerHTML == groupName) {
+			var content = "<img src=\"" + 
+					  	  pic + 
+					  	  "\"><br><a href=\"https://www.instagram.com/" + 
+					  	  username +
+					  	  "\">" + 
+					  	  username + 
+					  	  "</a><button onclick=\"getRecent(" + 
+					  	  id + 
+					  	  ")\">Recent Uploads</button>";
+			var table = header.nextElementSibling;
+			var rows = table.rows;
+			var rowIndex = rows.length - 1;
+			var row;
+			var cell;
+			if (rowIndex >= 0) {
+				row = rows[rowIndex];
+				var cellIndex = row.cells.length;
+				if (cellIndex == 5) {
+					row = table.insertRow(++rowIndex);
+					cell = row.insertCell(0);
+					cell.innerHTML = content;
+				} else {
+					cell = row.insertCell(cellIndex);
+					cell.innerHTML = content;
+				}
+			} else {
+				row = table.insertRow(0);
+				cell = row.insertCell(0);
+				cell.innerHTML = content;
+			}
+		}
 	} else {
 		$("#message")[0].innerHTML = username + " already belongs to " + groupName;
 	}
-	goHome();
 	select[0].selected = true;
 };
 
