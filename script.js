@@ -58,7 +58,7 @@ var createGroup = function(element) {
 														groupName + 
 														"<ul>" +
 														element +
-														"</ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+														"</ul></div><button onclick=\"viewGroup(this)\">View/Edit</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
 		addToMenus(groupName);
 	} else {
 		cell = row.insertCell(++cellIndex);
@@ -71,14 +71,14 @@ var createGroup = function(element) {
 												groupName + 
 												"<ul>" +
 												element +
-												"</ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+												"</ul></div><button onclick=\"viewGroup(this)\">View/Edit</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
 		addToMenus(groupName);
 	}
 	var message = groupName + " successfully created.";
 	if (element != "") {
 		message += " successfully added to " + groupName + ".";
 	}
-	$("#groupMessage")[0].innerHTML = message;
+	$("#groupMessage")[0].innerHTML = message; //GO TO TOP OF PAGE
 	console.log($("html")[0]);
 };
 
@@ -115,10 +115,9 @@ var viewGroup = function(button) {
 					  "\">" + 
 					  list[i++].innerHTML + 
 					  "</a><button onclick=\"getRecent(" + 
-					  list[i++] + 
-					  ")\">Recent Uploads</button>";
+					  list[i++].innerHTML + 
+					  ")\">Recent Uploads</button><button onclick=\"removeFromGroup(this)\">Remove</button>";
 			if ((i - 3) % 15 == 0) {
-				console.log(i);
 				row = table.insertRow(rowIndex++);
 				cellIndex = 0;
 				cell = row.insertCell(cellIndex++);
@@ -131,7 +130,36 @@ var viewGroup = function(button) {
 	group();
 };
 
-var deleteGroup = function(button) {
+var removeFromGroup = function(button) {
+	var cell = button.parentElement;
+	var username = cell.children[2].innerHTML;
+	$("." + username).remove();
+	var nextCell = cell.nextElementSibling;
+	nextCell = checkNextRow(cell, nextCell);
+	while (nextCell != null) {
+		cell.innerHTML = nextCell.innerHTML;
+		cell = nextCell;
+		nextCell = cell.nextElementSibling;
+		nextCell = checkNextRow(cell, nextCell);
+	}
+	var row = cell.parentElement;
+	cell.remove();
+	if (row.cells.length < 1) {
+		row.remove();
+	}
+};
+
+var checkNextRow = function(cell, nextCell) {
+	if (nextCell == null) {
+		var nextRow = cell.parentElement.nextElementSibling;
+		if (nextRow != null) {
+			return nextRow.cells[0];
+		}
+	}
+	return nextCell;
+};
+
+var deleteGroup = function(button) { //MAKE THIS FUNCTION LIKE DELETEFROMGROUP
 	$("#groupMessage")[0].innerHTML = "";
 	var cell = button.parentElement;
 	var cellIndex = cell.cellIndex;
@@ -187,7 +215,7 @@ var deleteGroup = function(button) {
 		table.deleteRow(lastRowIndex);
 	}
 	console.log($("html")[0]);
-	$("#groupMessage")[0].innerHTML = groupName + " successfully deleted.";
+	$("#groupMessage")[0].innerHTML = groupName + " successfully deleted."; //GO TO TOP OF PAGE
 };
 
 var addToMenus = function(groupName) {
@@ -316,7 +344,7 @@ var getGroups = function() {
 	return ret;
 };
 
-var getRecent = function(id) {
+var getRecent = function(id) { //PRIVATE USERS???
 	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
 			dataType: "jsonp",
 			success: handleMedia				
@@ -353,7 +381,7 @@ var addToGroup = function(select, pic, username, id) {
 						  	  username + 
 						  	  "</a><button onclick=\"getRecent(" + 
 						  	  id + 
-						  	  ")\">Recent Uploads</button>";
+						  	  ")\">Recent Uploads</button><button onclick=\"removeFromGroup(this)\">Remove</button>";
 				var table = header.nextElementSibling;
 				var rows = table.rows;
 				var rowIndex = rows.length - 1;
@@ -375,7 +403,7 @@ var addToGroup = function(select, pic, username, id) {
 					cell = row.insertCell(0);
 					cell.innerHTML = content;
 				}
-			}
+			} //GO TO TOP OF PAGE
 			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName;
 		} else {
 			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName;
