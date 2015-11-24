@@ -1,23 +1,154 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
-var search = function() {
+var home = function() {
 	$("#message")[0].innerHTML = "";
-	$("#groupspage")[0].hidden = true;
+	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
-	$("#searchpage")[0].hidden = false;
+	$("#searchpage")[0].hidden = true;
+	$("#homepage")[0].hidden = false;
 };
 
-var groups = function() {
-	$("#searchpage")[0].hidden = true;
+var group = function() {
+	$("#message")[0].innerHTML = "";
+	$("#homepage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
-	$("#groupspage")[0].hidden = false;
+	$("#searchpage")[0].hidden = true;
+	$("#grouppage")[0].hidden = false;
 };
 
 var user = function() {
 	$("#message")[0].innerHTML = "";
+	$("#homepage")[0].hidden = true;
+	$("#grouppage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
-	$("#groupspage")[0].hidden = true;
 	$("#userpage")[0].hidden = false;
+};
+
+var search = function() {
+	$("#message")[0].innerHTML = "";
+	$("#homepage")[0].hidden = true;
+	$("#grouppage")[0].hidden = true;
+	$("#userpage")[0].hidden = true;
+	$("#searchpage")[0].hidden = false;
+};
+
+var createGroup = function() { //POTENTIALLY SEPARATE VIEW FOR GROUPS
+	$("#message")[0].innerHTML = "";
+	var table = $("#groups")[0];
+	var rows = table.rows;
+	var rowIndex = rows.length - 1;
+	var row = rows[rowIndex];
+	var cellIndex = row.cells.length - 1;
+	var cell;
+	var id;
+	var groupName;
+	if (cellIndex == 4) { // add a new row after 5 cells 
+		row = table.insertRow(++rowIndex);
+		cellIndex = 0;
+		cell = row.insertCell(cellIndex);
+		cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
+		id = (rowIndex - 1) * 5 + 4;
+		groupName = checkGroupName(id);
+		row.previousElementSibling.cells[4].innerHTML = "<div id=\"" + 
+														groupName + 
+														"\" class=\"groupName\">" + 
+														groupName + 
+														"<ul></ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+		addToMenus(groupName);
+	} else {
+		cell = row.insertCell(++cellIndex);
+		cell.innerHTML = cell.previousElementSibling.innerHTML;
+		id = rowIndex * 5 + cellIndex - 1;
+		groupName = checkGroupName(id);
+		cell.previousElementSibling.innerHTML = "<div id=\"" + 
+												groupName + 
+												"\" class=\"groupName\">" + 
+												groupName + 
+												"<ul></ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+		addToMenus(groupName);
+	}
+	console.log($("html")[0]);
+};
+
+var checkGroupName = function(groupName) {
+	//groupName = groupName.replace(/ /g, "+"); ENFORCE UNIQUE GROUP NAMES
+	if ($("#" + groupName).length > 0) {
+		return checkGroupName(groupName + "-1");
+	} else {
+		return groupName;
+	}
+};
+
+var viewGroup = function(button) {
+	console.log($("button"));
+	console.log(button);
+};
+
+var deleteGroup = function(button) {
+	$("#message")[0].innerHTML = "";
+	var cell = button.parentElement;
+	var cellIndex = cell.cellIndex;
+	var rowIndex = cell.parentElement.rowIndex;
+	var table = $("#groups")[0];
+	var groupName = table.rows[rowIndex].cells[cellIndex].children[0].id;
+	$("." + groupName).remove();
+	var rows = table.rows;
+	var row;
+	var nextRow;
+	var cells;
+	var cell;
+	var nextCell;
+	var children;
+	var button;
+	while (rowIndex < rows.length) { // loop through all rows
+		row = rows[rowIndex++]
+		cells = row.cells;
+		while (cellIndex < cells.length) { // loop through all cells in a given row
+			cell = cells[cellIndex];
+			nextCell = cell.nextElementSibling;
+			if (nextCell != null) { // overwrite cell with next cell if it is not the last of its row
+				cell.innerHTML = nextCell.innerHTML;
+				children = cell.children;
+				button = children[children.length - 1];
+				if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
+					button.id--;
+				}
+			} else { // handle cells that are the last of its row
+				if (cellIndex < 4) { // delete cells that do not have a next row
+					row.deleteCell(cellIndex);
+				} else {
+					nextRow = row.nextElementSibling;
+					if (nextRow != null) { // overwrite cell with next cell if it has a next row
+						cell.innerHTML = nextRow.cells[0].innerHTML;
+						children = cell.children;
+						button = children[children.length - 1];
+						if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
+							button.id--;
+
+						}
+					} else { // otherwise just delete cell
+						row.deleteCell(cellIndex);
+					}
+				}
+			}
+			cellIndex++;
+		}
+		cellIndex = 0;
+	}
+	var lastRowIndex = rows.length - 1;
+	if (rows[lastRowIndex].cells.length == 0) {
+		table.deleteRow(lastRowIndex);
+	}
+	console.log($("html")[0]);
+};
+
+var addToMenus = function(groupName) {
+	var menus = $("select");
+	var menu;
+	for (var i = 0; i < menus.length; i++) {
+		menu = menus[i];
+		menu.innerHTML = menu.innerHTML + "<option class=\"" + groupName + "\">" + groupName + "</option>";
+	}
 };
 
 var submitForm = function() {
@@ -101,8 +232,12 @@ var handleUsers = function(data) {
 						  "\">Instagram</a><button onclick=\"getRecent(" + 
 						  user.id + 
 						  ")\">Recent Uploads</button><select onchange=\"addToGroup(this, '" + 
-						  user.username + 
-						  "')\"><option selected disabled>Choose A Group!</option>" + // MUST BE ABLE TO ADD TO NEW GROUP
+						  user.profile_picture + 
+						  "', '" +
+						  user.username +
+						  "', " + 
+						  user.id +
+						  ")\"><option selected disabled>Choose A Group!</option>" + // MUST BE ABLE TO ADD TO NEW GROUP
 						  options +
 						  "</select>"
 				if (index % 5 == 0) { // add a new row after 5 cells
@@ -144,10 +279,22 @@ var getRecent = function(id) {
 	user();
 };
 
-var addToGroup = function(select, username) {
+var addToGroup = function(select, pic, username, id) {
 	var groupName = select.value;
 	if ($("#" + groupName + " ." + username).length < 1) { // check if user is already in group
-		$("#" + groupName)[0].children[0].innerHTML += "<li class=\"" + username + "\">" + username + "</li>";
+		$("#" + groupName)[0].children[0].innerHTML += "<li class=\"" + 
+													   username + 
+													   "\">" + 
+													   username + 
+													   "</li><li class=\"" + 
+													   username + 
+													   "\" hidden>" +
+													   pic +
+													   "</li><li class=\"" + 
+													   username + 
+													   "\" hidden>" + 
+													   id +
+													   "</li>";
 		$("#message")[0].innerHTML = username + " was successfully added to " + groupName;
 	} else {
 		$("#message")[0].innerHTML = username + " already belongs to " + groupName;
@@ -217,7 +364,7 @@ var handleMedia = function(data) {
 
 var convert = function(millis) { //TODO!!!
 	return millis;
-}
+};
 
 var searchOnCoordinates = function(data) {
 	if (data.status == "OK") {
@@ -235,118 +382,4 @@ var searchOnCoordinates = function(data) {
 		var cell = row.insertCell(0);
 		cell.innerHTML = "No results.";
 	}
-};
-
-var createGroup = function() { //POTENTIALLY SEPARATE VIEW FOR GROUPS
-	$("#message")[0].innerHTML = "";
-	var table = $("#groups")[0];
-	var rows = table.rows;
-	var rowIndex = rows.length - 1;
-	var row = rows[rowIndex];
-	var cellIndex = row.cells.length - 1;
-	var cell;
-	var id;
-	var groupName;
-	if (cellIndex == 4) { // add a new row after 5 cells 
-		row = table.insertRow(++rowIndex);
-		cellIndex = 0;
-		cell = row.insertCell(cellIndex);
-		cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
-		id = (rowIndex - 1) * 5 + 4;
-		groupName = checkGroupName(id);
-		row.previousElementSibling.cells[4].innerHTML = "<div id=\"" + 
-														groupName + 
-														"\" class=\"groupName\">" + 
-														groupName + 
-														"<ul></ul></div><button onclick=\"deleteGroup(this)\">Delete Group</button>";
-		addToMenus(groupName);
-	} else {
-		cell = row.insertCell(++cellIndex);
-		cell.innerHTML = cell.previousElementSibling.innerHTML;
-		id = rowIndex * 5 + cellIndex - 1;
-		groupName = checkGroupName(id);
-		cell.previousElementSibling.innerHTML = "<div id=\"" + 
-												groupName + 
-												"\" class=\"groupName\">" + 
-												groupName + 
-												"<ul></ul></div><button onclick=\"deleteGroup(this)\">Delete Group</button>";
-		addToMenus(groupName);
-	}
-	console.log($("html")[0]);
-};
-
-var checkGroupName = function(groupName) {
-	//groupName = groupName.replace(/ /g, "+"); ENFORCE UNIQUE GROUP NAMES
-	if ($("#" + groupName).length > 0) {
-		return checkGroupName(groupName + "-1");
-	} else {
-		return groupName;
-	}
-}
-
-var addToMenus = function(groupName) {
-	var menus = $("select");
-	var menu;
-	for (var i = 0; i < menus.length; i++) {
-		menu = menus[i];
-		menu.innerHTML = menu.innerHTML + "<option class=\"" + groupName + "\">" + groupName + "</option>";
-	}
-};
-
-var deleteGroup = function(button) {
-	$("#message")[0].innerHTML = "";
-	var cell = button.parentElement;
-	var cellIndex = cell.cellIndex;
-	var rowIndex = cell.parentElement.rowIndex;
-	var table = $("#groups")[0];
-	var groupName = table.rows[rowIndex].cells[cellIndex].children[0].id;
-	$("." + groupName).remove();
-	var rows = table.rows;
-	var row;
-	var nextRow;
-	var cells;
-	var cell;
-	var nextCell;
-	var children;
-	var button;
-	while (rowIndex < rows.length) { // loop through all rows
-		row = rows[rowIndex++]
-		cells = row.cells;
-		while (cellIndex < cells.length) { // loop through all cells in a given row
-			cell = cells[cellIndex];
-			nextCell = cell.nextElementSibling;
-			if (nextCell != null) { // overwrite cell with next cell if it is not the last of its row
-				cell.innerHTML = nextCell.innerHTML;
-				children = cell.children;
-				button = children[children.length - 1];
-				if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
-					button.id--;
-				}
-			} else { // handle cells that are the last of its row
-				if (cellIndex < 4) { // delete cells that do not have a next row
-					row.deleteCell(cellIndex);
-				} else {
-					nextRow = row.nextElementSibling;
-					if (nextRow != null) { // overwrite cell with next cell if it has a next row
-						cell.innerHTML = nextRow.cells[0].innerHTML;
-						children = cell.children;
-						button = children[children.length - 1];
-						if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
-							button.id--;
-
-						}
-					} else { // otherwise just delete cell
-						row.deleteCell(cellIndex);
-					}
-				}
-			}
-			cellIndex++;
-		}
-		cellIndex = 0;
-	}
-	var lastRowIndex = rows.length - 1;
-	if (rows[lastRowIndex].cells.length == 0) {
-		table.deleteRow(lastRowIndex);
-	}
-	console.log($("html")[0]);
 };

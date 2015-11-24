@@ -7,14 +7,39 @@
   <script type="text/javascript" src="script.js"></script>
  </head>
  <body>
-  <!-- PUT ALL BUTTONS IN HEADER NO CREATE A GROUP BUTTON JUST ADD TO GROUP THAT AUTOMATICALLY ADDS TO NEW GROUP IF NONE PRESENT (UI DECISION)-->
   <nav>
    <div>
-    <button onclick="search()">Search</button>
-    <button onclick="groups()">InstaGroups</button>
+    <button onclick="home()">InstaGroups</button>
+    <button onclick="group()">Group</button>
     <button onclick="user()">User</button>
+    <button onclick="search()">Search</button>
    </div>
   </nav>
+  <div id="homepage"> <!-- UI DECISION TO START ON GROUPS PAGE -->
+   <h1>InstaGroups</h1>
+   <div>
+    <h6 id="message"><h6>
+   </div>
+   <div>
+    <table id="groups">
+     <tbody>
+      <tr>
+       <td>
+        <button onclick="createGroup()">New Group</button>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+  <div id="grouppage" hidden>
+   <h1 id="group"></h1>
+    <table id="groupContents"></table>
+  </div>
+  <div id="userpage" hidden>
+   <h1 id="user"></h1> <!-- NEED BETTER ORIGINAL USERPAGE WHEN BLANK, POSSIBLY SEARCH BUTTON? -->
+   <table id="userResults"></table>
+  </div>
   <div id="searchpage" hidden>
    <h1>Search</h1>
    <div>
@@ -29,27 +54,6 @@
    <div>
     <table id="searchResults"></table>
    </div>
-  </div>
-  <div id="groupspage"> <!-- UI DECISION TO START ON GROUPS PAGE -->
-   <h1>InstaGroups</h1>
-    <div>
-     <h6 id="message"><h6>
-    </div>
-    <div>
-      <table id="groups">
-       <tbody>
-        <tr>
-         <td>
-          <button onclick="createGroup()">New Group</button>
-         </td>
-        </tr>
-       </tbody>
-      </table>
-   </div>
-  </div>
-  <div id="userpage" hidden>
-   <h1 id="user">User</h1> <!-- NEED BETTER ORIGINAL USERPAGE WHEN BLANK, POSSIBLY SEARCH BUTTON? -->
-   <table id="userResults"></table>
   </div>
  </body>
 </html>
