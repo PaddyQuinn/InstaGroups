@@ -1,7 +1,7 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
 var goHome = function() {
-	$("#message")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -9,15 +9,17 @@ var goHome = function() {
 };
 
 var group = function() {
-	$("#message")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
-	$("#grouppage")[0].hidden = false; //HANDLE CASE WHERE USER ADDS SOMEONE TO GROUP THEN PRESSES GROUP BUTTON
+	$("#grouppage")[0].hidden = false;
 };
 
 var user = function() {
-	$("#message")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#grouppage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -25,14 +27,16 @@ var user = function() {
 };
 
 var search = function() {
-	$("#message")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = false;
 };
 
-var createGroup = function() {
+var createGroup = function(element) {
+	$("#groupMessage")[0].innerHTML = "";
 	var table = $("#groups")[0];
 	var rows = table.rows;
 	var rowIndex = rows.length - 1;
@@ -52,7 +56,9 @@ var createGroup = function() {
 														groupName + 
 														"\" class=\"groupName\">" + 
 														groupName + 
-														"<ul></ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+														"<ul>" +
+														element +
+														"</ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
 		addToMenus(groupName);
 	} else {
 		cell = row.insertCell(++cellIndex);
@@ -63,14 +69,22 @@ var createGroup = function() {
 												groupName + 
 												"\" class=\"groupName\">" + 
 												groupName + 
-												"<ul></ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+												"<ul>" +
+												element +
+												"</ul></div><button onclick=\"viewGroup(this)\">View Group</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
 		addToMenus(groupName);
 	}
+	var message = groupName + " successfully created.";
+	if (element != "") {
+		message += " successfully added to " + groupName + ".";
+	}
+	$("#groupMessage")[0].innerHTML = message;
 	console.log($("html")[0]);
 };
 
 var checkGroupName = function(groupName) {
 	//groupName = groupName.replace(/ /g, "+"); ENFORCE UNIQUE GROUP NAMES
+	//check for "New Group"
 	if ($("#" + groupName).length > 0) {
 		return checkGroupName(groupName + "-1");
 	} else {
@@ -79,6 +93,7 @@ var checkGroupName = function(groupName) {
 };
 
 var viewGroup = function(button) {
+	$("#groupMessage")[0].innerHTML = "";
 	var div = button.parentElement.children[0];
 	var groupName = div.id;
 	$("#group")[0].innerHTML = groupName;
@@ -117,6 +132,7 @@ var viewGroup = function(button) {
 };
 
 var deleteGroup = function(button) {
+	$("#groupMessage")[0].innerHTML = "";
 	var cell = button.parentElement;
 	var cellIndex = cell.cellIndex;
 	var rowIndex = cell.parentElement.rowIndex;
@@ -171,6 +187,7 @@ var deleteGroup = function(button) {
 		table.deleteRow(lastRowIndex);
 	}
 	console.log($("html")[0]);
+	$("#groupMessage")[0].innerHTML = groupName + " successfully deleted.";
 };
 
 var addToMenus = function(groupName) {
@@ -250,7 +267,7 @@ var handleUsers = function(data) {
 			var user;
 			var content = "";
 			var options = getGroups();
-			while (index < 20 && index < users.length) { // UI DESIGN DECISION TO HANDLE 20!!!
+			while (index < 20 && index < users.length) { //UI DESIGN DECISION TO HANDLE 20!!!
 				user = users[index];
 				content = "<img src=\"" + 
 						  user.profile_picture + 
@@ -266,7 +283,7 @@ var handleUsers = function(data) {
 						  user.username +
 						  "', " + 
 						  user.id +
-						  ")\"><option selected disabled>Choose A Group!</option>" + // MUST BE ABLE TO ADD TO NEW GROUP
+						  ")\"><option selected disabled>Choose A Group!</option><option>New Group</option>" + // MUST BE ABLE TO ADD TO NEW GROUP
 						  options +
 						  "</select>"
 				if (index % 5 == 0) { // add a new row after 5 cells
@@ -310,56 +327,62 @@ var getRecent = function(id) {
 
 var addToGroup = function(select, pic, username, id) {
 	var groupName = select.value;
-	if ($("#" + groupName + " ." + username).length < 1) { // check if user is already in group
-		$("#" + groupName)[0].children[0].innerHTML += "<li class=\"" + 
-													   username + 
-													   "\" hidden>" +
-													   pic +
-													   "</li><li class=\"" +
-													   username + 
-													   "\">" + 
-													   username + 
-													   "</li><li class=\"" + 
-													   username + 
-													   "\" hidden>" + 
-													   id +
-													   "</li>";
-		$("#message")[0].innerHTML = username + " was successfully added to " + groupName;
-		var header = $("#group")[0];
-		if (header.innerHTML == groupName) {
-			var content = "<img src=\"" + 
-					  	  pic + 
-					  	  "\"><br><a href=\"https://www.instagram.com/" + 
-					  	  username +
-					  	  "\">" + 
-					  	  username + 
-					  	  "</a><button onclick=\"getRecent(" + 
-					  	  id + 
-					  	  ")\">Recent Uploads</button>";
-			var table = header.nextElementSibling;
-			var rows = table.rows;
-			var rowIndex = rows.length - 1;
-			var row;
-			var cell;
-			if (rowIndex >= 0) {
-				row = rows[rowIndex];
-				var cellIndex = row.cells.length;
-				if (cellIndex == 5) {
-					row = table.insertRow(++rowIndex);
+	var element = "<li class=\"" + 
+				  username + 
+				  "\" hidden>" +
+				  pic +
+				  "</li><li class=\"" +
+				  username + 
+				  "\">" + 
+				  username + 
+				  "</li><li class=\"" + 
+				  username + 
+				  "\" hidden>" + 
+				  id +
+				  "</li>";
+	if (groupName != "New Group") {
+		if ($("#" + groupName + " ." + username).length < 1) { // check if user is already in group
+			$("#" + groupName)[0].children[0].innerHTML += element;
+			var header = $("#group")[0];
+			if (header.innerHTML == groupName) {
+				var content = "<img src=\"" + 
+					  		  pic + 
+						  	  "\"><br><a href=\"https://www.instagram.com/" + 
+						  	  username +
+						  	  "\">" + 
+						  	  username + 
+						  	  "</a><button onclick=\"getRecent(" + 
+						  	  id + 
+						  	  ")\">Recent Uploads</button>";
+				var table = header.nextElementSibling;
+				var rows = table.rows;
+				var rowIndex = rows.length - 1;
+				var row;
+				var cell;
+				if (rowIndex >= 0) {
+					row = rows[rowIndex];
+					var cellIndex = row.cells.length;
+					if (cellIndex == 5) {
+						row = table.insertRow(++rowIndex);
+						cell = row.insertCell(0);
+						cell.innerHTML = content;
+					} else {
+						cell = row.insertCell(cellIndex);
+						cell.innerHTML = content;
+					}
+				} else {
+					row = table.insertRow(0);
 					cell = row.insertCell(0);
 					cell.innerHTML = content;
-				} else {
-					cell = row.insertCell(cellIndex);
-					cell.innerHTML = content;
 				}
-			} else {
-				row = table.insertRow(0);
-				cell = row.insertCell(0);
-				cell.innerHTML = content;
 			}
+			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName;
+		} else {
+			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName;
 		}
 	} else {
-		$("#message")[0].innerHTML = username + " already belongs to " + groupName;
+		createGroup(element);
+		goHome();
 	}
 	select[0].selected = true;
 };
@@ -370,7 +393,7 @@ var handleMedia = function(data) {
 		table = $("#searchResults")[0];
 	} else {
 		table = $("#userResults")[0];
-		$("#user")[0].innerHTML = data.data[0].user.username; //"User" SHOWS UP AT FIRST ON USERPAGE
+		$("#user")[0].innerHTML = data.data[0].user.username;
 	}
 	table.innerHTML = "";
 	var row;

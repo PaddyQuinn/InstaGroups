@@ -18,11 +18,14 @@
   <div id="homepage"> <!-- UI DECISION TO START ON GROUPS PAGE -->
    <h1>InstaGroups</h1>
    <div>
+    <h6 id="groupMessage"></h6>
+   </div>
+   <div>
     <table id="groups">
      <tbody>
       <tr>
        <td>
-        <button onclick="createGroup()">New Group</button>
+        <button onclick="createGroup('')">New Group</button>
        </td>
       </tr>
      </tbody>
@@ -40,7 +43,7 @@
   <div id="searchpage" hidden>
    <h1>Search</h1>
    <div>
-    <h6 id="message"></h6>
+    <h6 id="searchMessage"></h6>
    </div>
    <div>
     <form onsubmit="submitForm()">
