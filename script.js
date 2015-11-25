@@ -38,13 +38,15 @@ var search = function() {
 var createGroup = function(pic, username, id) { 
 	//$("#homeMessage")[0].innerHTML = "";
 	$("#grouppage")[0].children[1].children[1].innerHTML = "";
-	var textbox = "<form onsubmit=\"editGroup()\"><input type=\"text\" id=\"group\"></input><input type=\"text\" id=\"p\" value=\"" +
+	var textbox = "<form onsubmit=\"editGroup()\"><input type=\"text\" id=\"group\"></input>" +
+				  "<input type=\"text\" id=\"p\" value=\"" +
 				  pic +
 				  "\" hidden></input><input type=\"text\" id=\"u\" value=\"" +
 				  username +
 				  "\" hidden></input><input type=\"text\" id=\"i\" value=\"" +
 				  id +
-				  "\" hidden></input><input type=\"text\" id=\"exists\" value=\"false\" hidden></input><input type=\"submit\" value=\"Submit\"></input></form>";
+				  "\" hidden></input><input type=\"text\" id=\"previous\" value=\"\" hidden></input>" +
+				  "<input type=\"submit\" value=\"Submit\"></input></form>";
 	if (id != -1) {
 		var row = $("#groupContents")[0].insertRow(0);
 		var cell = row.insertCell(0);
@@ -69,6 +71,7 @@ var editGroup = function() {
 	var pic = $("#p")[0].value;
 	var username = $("#u")[0].value;
 	var id = $("#i")[0].value;
+	var previous = $("#previous")[0].value;
 	var content = "";
 	if (id != -1) {
 		content += "<li class=\"" + 
@@ -85,11 +88,13 @@ var editGroup = function() {
 				   id +
 				   "</li>";
 	}
-	var exists = $("#exists")[0].value;
-	var message = checkGroupName(groupName);
-	if (message == groupName) {
-		$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\">" + groupName + "</h1>"; //EDIT ONCLICK??
-		if (exists == "false") {
+	var message;
+	if (previous == "") {
+		message = checkGroupName(groupName);
+		if (message == groupName) {
+			$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
+																   groupName + 
+																   "</h1>";
 			var table = $("#groups")[0];
 			var rows = table.rows;
 			var rowIndex = rows.length - 1;
@@ -128,10 +133,32 @@ var editGroup = function() {
 			//$("#homeMessage")[0].innerHTML = message;
 			//window.scrollTo(0, 0);
 		} else {
-			//TODO
+			//$("#groupMessage")[0].innerHTML = message;
 		}
 	} else {
-		//$("#groupMessage")[0].innerHTML = message;
+		if (groupName == previous) {
+			$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
+																   groupName + 
+																   "</h1>";
+		} else {
+			message = checkGroupName(groupName);
+			if (message == groupName) {
+				$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
+																	   groupName + 
+																	   "</h1>";
+				$("#" + previous)[0].firstChild.data = groupName;
+				$("#" + previous)[0].id = groupName;
+				console.log($("#" + groupName));
+				var options = $("." + previous);
+				for (var i = 0; i < options.length; i++) {
+					options[i].innerHTML = groupName;
+					options[i].className = groupName;
+				}
+				console.log($("html")[0]);
+			} else {
+				//PRINT MESSAGE
+			}
+		}
 	}
 };
 
@@ -147,11 +174,29 @@ var checkGroupName = function(groupName) {
 	}
 };
 
-var viewGroup = function(button) {//TO EDIT
+var toTextbox = function(header) {
+	var previous = header.innerHTML;
+	var textbox = "<form onsubmit=\"editGroup()\">" +
+				  "<input type=\"text\" id=\"group\" value=\"" +
+				  previous +
+				  "\"></input>" +
+				  "<input type=\"text\" id=\"p\" value=\"''\" hidden></input>" +
+				  "<input type=\"text\" id=\"u\" value=\"''\" hidden></input>" +
+				  "<input type=\"text\" id=\"i\" value=\"-1\" hidden></input>" +
+				  "<input type=\"text\" id=\"previous\" value=\"" +
+				  previous +
+				  "\" hidden></input>" +
+				  "<input type=\"submit\" value=\"Submit\"></input></form>";
+	header.outerHTML = textbox;
+};
+
+var viewGroup = function(button) {
 	//$("#homeMessage")[0].innerHTML = "";
 	var div = button.parentElement.children[0];
 	var groupName = div.id;
-	$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\">" + groupName + "</h1>"; //EDIT ONCLICK??
+	$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
+														   groupName + 
+														   "</h1>";
 	var list = div.children[0].children;
 	var table = $("#groupContents")[0];
 	table.innerHTML = "";
