@@ -78,7 +78,8 @@ var createGroup = function(element) {
 	if (element != "") {
 		message += " successfully added to " + groupName + ".";
 	}
-	$("#groupMessage")[0].innerHTML = message; //GO TO TOP OF PAGE
+	$("#groupMessage")[0].innerHTML = message;
+	window.scrollTo(0, 0);
 	console.log($("html")[0]);
 };
 
@@ -178,7 +179,8 @@ var deleteGroup = function(button) {
 		row.remove();
 	}
 	console.log($("html")[0]);
-	$("#groupMessage")[0].innerHTML = groupName + " successfully deleted."; //GO TO TOP OF PAGE
+	$("#groupMessage")[0].innerHTML = groupName + " successfully deleted.";
+	window.scrollTo(0, 0);
 };
 
 var addToMenus = function(groupName) {
@@ -366,11 +368,12 @@ var addToGroup = function(select, pic, username, id) {
 					cell = row.insertCell(0);
 					cell.innerHTML = content;
 				}
-			} //GO TO TOP OF PAGE
+			}
 			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName;
 		} else {
 			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName;
 		}
+		window.scrollTo(0, 0);
 	} else {
 		createGroup(element);
 		goHome();
