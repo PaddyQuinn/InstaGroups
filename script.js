@@ -1,7 +1,6 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
 var goHome = function() {
-	$("#homeMessage")[0].innerHTML = "";
 	$("#groupMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
@@ -12,7 +11,6 @@ var goHome = function() {
 
 var group = function() {
 	$("#homeMessage")[0].innerHTML = "";
-	$("#groupMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
@@ -33,7 +31,6 @@ var user = function() {
 var search = function() {
 	$("#homeMessage")[0].innerHTML = "";
 	$("#groupMessage")[0].innerHTML = "";
-	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
@@ -267,6 +264,7 @@ var handleMedia = function(data) {
 			var pv;
 			while (index < media.length) {
 				pv = media[index];
+				console.log(pv);
 				if (pv.type == "image") {
 					content += "<img src=\"" +
 				    pv.images.standard_resolution.url +
@@ -276,7 +274,7 @@ var handleMedia = function(data) {
 			   	    pv.videos.standard_resolution.url +
 				    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
 				}
-				//ADD POSTING USER -> SO THEY CAN BE ADDED TO GROUP (REQUIRED)
+				content += "<br>User: " + pv.user.username; //ADD ABILITY TO ADD TO A GROUP!! 
 				if (pv.caption != null) {
 					content += "<br>Caption: " + pv.caption.text;
 				} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
@@ -355,10 +353,12 @@ var checkNextRow = function(cell, nextCell) {
 	return nextCell;
 };
 
-var deleteGroup = function(button) { //MUST HANDLE WHEN DELETED GROUP IS ON VIEW GROUP PAGE
+var deleteGroup = function(button) {
 	$("#homeMessage")[0].innerHTML = "";
+	$("#grouppage")[0].children[1].innerHTML = "<h1></h1><table id=\"groupContents\"></table>";
 	var cell = button.parentElement;
 	var groupName = cell.children[0].id;
+	$("#groupMessage")[0].innerHTML = groupName + " has been deleted.";
 	$("." + groupName).remove();
 	var nextCell = cell.nextElementSibling;
 	nextCell = checkNextRow(cell, nextCell);
@@ -555,9 +555,9 @@ var addToGroup = function(select, pic, username, id) {
 					cell.innerHTML = content;
 				}
 			}
-			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName;
+			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName + ".";
 		} else {
-			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName;
+			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName + ".";
 		}
 		window.scrollTo(0, 0);
 	} else {
