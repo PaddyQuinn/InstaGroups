@@ -1,7 +1,9 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
 var goHome = function() {
-	//$("#searchMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -9,8 +11,9 @@ var goHome = function() {
 };
 
 var group = function() {
-	//$("#homeMessage")[0].innerHTML = "";
-	//$("#searchMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -18,8 +21,9 @@ var group = function() {
 };
 
 var user = function() {
-	//$("#homeMessage")[0].innerHTML = "";
-	//$("#searchMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#grouppage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
@@ -27,8 +31,9 @@ var user = function() {
 };
 
 var search = function() {
-	//$("#homeMessage")[0].innerHTML = "";
-	//$("#searchMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
@@ -36,7 +41,7 @@ var search = function() {
 };
 
 var createGroup = function(pic, username, id) { 
-	//$("#homeMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
 	$("#grouppage")[0].children[1].children[1].innerHTML = "";
 	var textbox = "<form onsubmit=\"editGroup()\"><input type=\"text\" id=\"group\"></input>" +
 				  "<input type=\"text\" id=\"p\" value=\"" +
@@ -67,6 +72,7 @@ var createGroup = function(pic, username, id) {
 
 var editGroup = function() {
 	event.preventDefault();
+	$("#groupMessage")[0].innerHTML = "";
 	var groupName = $("#group")[0].value;
 	var pic = $("#p")[0].value;
 	var username = $("#u")[0].value;
@@ -107,7 +113,7 @@ var editGroup = function() {
 				cell = row.insertCell(cellIndex);
 				cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
 				row.previousElementSibling.cells[4].innerHTML = "<div id=\"" + 
-																groupName + 
+																groupName + //HANDLE SPACES HERE!!!
 																"\" class=\"groupName\">" + 
 																groupName + 
 																"<ul>" +
@@ -126,14 +132,9 @@ var editGroup = function() {
 														"</ul></div><button onclick=\"viewGroup(this)\">View/Edit</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
 				addToMenus(groupName);
 			}
-			message = groupName + " successfully created.";
-			if (id != -1) {
-				message += username + " successfully added to " + groupName + ".";
-			}
-			//$("#homeMessage")[0].innerHTML = message;
-			//window.scrollTo(0, 0);
 		} else {
-			//$("#groupMessage")[0].innerHTML = message;
+			$("#groupMessage")[0].innerHTML = message;
+			window.scrollTo
 		}
 	} else {
 		if (groupName == previous) {
@@ -148,27 +149,27 @@ var editGroup = function() {
 																	   "</h1>";
 				$("#" + previous)[0].firstChild.data = groupName;
 				$("#" + previous)[0].id = groupName;
-				console.log($("#" + groupName));
 				var options = $("." + previous);
 				for (var i = 0; i < options.length; i++) {
 					options[i].innerHTML = groupName;
 					options[i].className = groupName;
 				}
-				console.log($("html")[0]);
 			} else {
-				//PRINT MESSAGE
+				$("#groupMessage")[0].innerHTML = message;
+				window.scrollTo
 			}
 		}
 	}
 };
 
 var checkGroupName = function(groupName) {
-	//groupName = groupName.replace(/ /g, "+"); ENFORCE UNIQUE GROUP NAMES
-	//check for "New Group"
+	//groupName = groupName.replace(/ /g, "+"); HANDLE SPACES!!!!!!!
 	if (groupName == "") {
-		return "Please enter a group name."
+		return "Please enter a group name.";
 	} else if ($("#" + groupName).length > 0) {
 		return groupName + " already used.";
+	} else if (groupName == "New Group") {
+		return "Illegal group name.";
 	} else {
 		return groupName;
 	}
@@ -191,7 +192,7 @@ var toTextbox = function(header) {
 };
 
 var viewGroup = function(button) {
-	//$("#homeMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
 	var div = button.parentElement.children[0];
 	var groupName = div.id;
 	$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
@@ -231,12 +232,13 @@ var viewGroup = function(button) {
 };
 
 var getRecent = function(id) { //PRIVATE USERS???
+	$("#groupMessage")[0].innerHTML = "";
+	$("#searchMessage")[0].innerHTML = "";
 	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
 			dataType: "jsonp",
 			success: handleMedia				
 	});
-	//ON READY STATE??
-	user();
+	$(document).ready(user()); //ON READY STATE?? DOESNT WORK
 };
 
 var handleMedia = function(data) {
@@ -299,6 +301,7 @@ var convert = function(millis) { //TODO!!!
 };
 
 var removeFromGroup = function(button) {
+	$("#groupMessage")[0].innerHTML = "";
 	var cell = button.parentElement;
 	var username = cell.children[2].innerHTML;
 	$("." + username).remove();
@@ -328,7 +331,7 @@ var checkNextRow = function(cell, nextCell) {
 };
 
 var deleteGroup = function(button) { //MUST HANDLE WHEN DELETED GROUP IS ON VIEW GROUP PAGE
-	//$("#homeMessage")[0].innerHTML = "";
+	$("#homeMessage")[0].innerHTML = "";
 	var cell = button.parentElement;
 	var groupName = cell.children[0].id;
 	$("." + groupName).remove();
@@ -345,9 +348,8 @@ var deleteGroup = function(button) { //MUST HANDLE WHEN DELETED GROUP IS ON VIEW
 	if (row.cells.length < 1) {
 		row.remove();
 	}
-	console.log($("html")[0]);
-	//$("#homeMessage")[0].innerHTML = groupName + " successfully deleted.";
-	//window.scrollTo(0, 0);
+	$("#homeMessage")[0].innerHTML = groupName + " successfully deleted.";
+	window.scrollTo(0, 0);
 };
 
 var addToMenus = function(groupName) {
@@ -477,6 +479,7 @@ var getGroups = function() {
 };
 
 var addToGroup = function(select, pic, username, id) {
+	$("#searchMessage")[0].innerHTML = "";
 	var groupName = select.value;
 	var element = "<li class=\"" + 
 				  username + 
@@ -532,9 +535,8 @@ var addToGroup = function(select, pic, username, id) {
 			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName;
 		}
 		window.scrollTo(0, 0);
-	} else { //CHECK FUNCTIONALITY
+	} else {
 		createGroup(pic, username, id);
-		group();
 	}
 	select[0].selected = true;
 };
