@@ -159,60 +159,23 @@ var checkNextRow = function(cell, nextCell) {
 	return nextCell;
 };
 
-var deleteGroup = function(button) { //MAKE THIS FUNCTION LIKE DELETEFROMGROUP
+var deleteGroup = function(button) {
 	$("#groupMessage")[0].innerHTML = "";
 	var cell = button.parentElement;
-	var cellIndex = cell.cellIndex;
-	var rowIndex = cell.parentElement.rowIndex;
-	var table = $("#groups")[0];
-	var groupName = table.rows[rowIndex].cells[cellIndex].children[0].id;
+	var groupName = cell.children[0].id;
 	$("." + groupName).remove();
-	var rows = table.rows;
-	var row;
-	var nextRow;
-	var cells;
-	var cell;
-	var nextCell;
-	var children;
-	var button;
-	while (rowIndex < rows.length) { // loop through all rows
-		row = rows[rowIndex++]
-		cells = row.cells;
-		while (cellIndex < cells.length) { // loop through all cells in a given row
-			cell = cells[cellIndex];
-			nextCell = cell.nextElementSibling;
-			if (nextCell != null) { // overwrite cell with next cell if it is not the last of its row
-				cell.innerHTML = nextCell.innerHTML;
-				children = cell.children;
-				button = children[children.length - 1];
-				if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
-					button.id--;
-				}
-			} else { // handle cells that are the last of its row
-				if (cellIndex < 4) { // delete cells that do not have a next row
-					row.deleteCell(cellIndex);
-				} else {
-					nextRow = row.nextElementSibling;
-					if (nextRow != null) { // overwrite cell with next cell if it has a next row
-						cell.innerHTML = nextRow.cells[0].innerHTML;
-						children = cell.children;
-						button = children[children.length - 1];
-						if (button.id != "") { // avoid unwanted side effect of assigning id to new group button
-							button.id--;
-
-						}
-					} else { // otherwise just delete cell
-						row.deleteCell(cellIndex);
-					}
-				}
-			}
-			cellIndex++;
-		}
-		cellIndex = 0;
+	var nextCell = cell.nextElementSibling;
+	nextCell = checkNextRow(cell, nextCell);
+	while (nextCell != null) {
+		cell.innerHTML = nextCell.innerHTML;
+		cell = nextCell;
+		nextCell = cell.nextElementSibling;
+		nextCell = checkNextRow(cell, nextCell);
 	}
-	var lastRowIndex = rows.length - 1;
-	if (rows[lastRowIndex].cells.length == 0) {
-		table.deleteRow(lastRowIndex);
+	var row = cell.parentElement;
+	cell.remove();
+	if (row.cells.length < 1) {
+		row.remove();
 	}
 	console.log($("html")[0]);
 	$("#groupMessage")[0].innerHTML = groupName + " successfully deleted."; //GO TO TOP OF PAGE
