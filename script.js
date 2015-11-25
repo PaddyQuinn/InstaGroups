@@ -40,6 +40,8 @@ var search = function() {
 	$("#searchpage")[0].hidden = false;
 };
 
+//DESIGN DECISION TO HAVE INSTAGRAM LINKS OPEN IN NEW TAB TP KEEP GROUPS
+
 var createGroup = function(pic, username, id) { 
 	$("#homeMessage")[0].innerHTML = "";
 	$("#grouppage")[0].children[1].children[1].innerHTML = "";
@@ -59,7 +61,7 @@ var createGroup = function(pic, username, id) {
 					  	 pic + 
 						 "\"><br><a href=\"https://www.instagram.com/" + 
 						 username +
-				  	  	 "\">" + 
+				  	  	 "\" target=\"_blank\">" + 
 					  	 username + 
 						 "</a><button onclick=\"getRecent(" + 
 						 id + 
@@ -163,7 +165,6 @@ var editGroup = function() {
 };
 
 var checkGroupName = function(groupName) {
-	//groupName = groupName.replace(/ /g, "+"); HANDLE SPACES!!!!!!!
 	if (groupName == "") {
 		return "Please enter a group name.";
 	} else if ($("#" + groupName).length > 0) {
@@ -213,7 +214,7 @@ var viewGroup = function(button) {
 					  list[i++].innerHTML + 
 					  "\"><br><a href=\"https://www.instagram.com/" + 
 					  list[i].innerHTML +
-					  "\">" + 
+					  "\" target=\"_blank\">" + 
 					  list[i++].innerHTML + 
 					  "</a><button onclick=\"getRecent(" + 
 					  list[i++].innerHTML + 
@@ -285,7 +286,7 @@ var handleMedia = function(data) {
 						   convert(pv.created_time) +
 						   "<br><a href=\"" +
 						   pv.link +
-						   "\">Instagram</a>";
+						   "\" target=\"_blank\">Instagram</a>";
 				//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
 				row = table.insertRow(index++);
 				cell = row.insertCell(0);
@@ -296,8 +297,32 @@ var handleMedia = function(data) {
 	}
 };
 
-var convert = function(millis) { //TODO!!!
-	return millis;
+var convert = function(millis) {
+	var date = new Date(parseInt(millis) * 1000);
+	var hour = date.getHours();
+	var ampm = "AM";
+	if (hour > 12) {
+		ampm = "PM";
+		hour = hour - 12;
+	} else {
+		if (hour == 12) {
+			ampm = "PM";
+		}
+		if (hour == 0) {
+			hour = 12;
+		}
+	}
+	var ret = hour +
+			  ":" +
+			  date.getMinutes() + 
+			  ampm +
+			  " " +
+			  (date.getMonth() + 1) +
+			  "/" +
+			  date.getDate() +
+			  "/" +
+			  date.getFullYear();
+	return ret;
 };
 
 var removeFromGroup = function(button) {
@@ -435,7 +460,7 @@ var handleUsers = function(data) {
 						  user.profile_picture + 
 						  "\"><br><a href=\"https://www.instagram.com/" 
 						  + user.username +
-						  "\">" + 
+						  "\" target=\"_blank\">" + 
 						  user.username + 
 						  "</a><button onclick=\"getRecent(" + 
 						  user.id + 
@@ -503,7 +528,7 @@ var addToGroup = function(select, pic, username, id) {
 					  		  pic + 
 						  	  "\"><br><a href=\"https://www.instagram.com/" + 
 						  	  username +
-						  	  "\">" + 
+						  	  "\" target=\"_blank\">" + 
 						  	  username + 
 						  	  "</a><button onclick=\"getRecent(" + 
 						  	  id + 
