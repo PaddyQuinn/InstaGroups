@@ -1,16 +1,33 @@
 var access_token = "20203233.9e4190f.72c45bfbc5d14f24aecf3d2d85af78e3";
 
-var goHome = function() {
+var goHome = function(li) {
+	li.className = "active";
+	var next = li.nextElementSibling;
+	for (var i = 0; i < 3; i++) {
+		next.className = "";
+		next = next.nextElementSibling;
+	}
+	$("#homeMessage")[0].innerHTML = "";
 	$("#groupMessage")[0].innerHTML = "";
+	$("#userMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = true;
 	$("#homepage")[0].hidden = false;
+
 };
 
-var group = function() {
+var group = function(li) {
+	li.className = "active";
+	li.previousElementSibling.className = "";
+	var next = li.nextElementSibling;
+	for (var i = 0; i < 2; i++) {
+		next.className = "";
+		next = next.nextElementSibling;
+	}
 	$("#homeMessage")[0].innerHTML = "";
+	$("#userMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
@@ -18,7 +35,14 @@ var group = function() {
 	$("#grouppage")[0].hidden = false;
 };
 
-var user = function() {
+var user = function(li) {
+	li.className = "active";
+	li.nextElementSibling.className = "";
+	var prev = li.previousElementSibling;
+	for (var i = 0; i < 2; i++) {
+		prev.className = "";
+		prev = prev.previousElementSibling;
+	}
 	$("#homeMessage")[0].innerHTML = "";
 	$("#groupMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
@@ -28,20 +52,29 @@ var user = function() {
 	$("#userpage")[0].hidden = false;
 };
 
-var search = function() {
+var toSearch = function(li) {
+	li.className = "active";
+	var prev = li.previousElementSibling;
+	for (var i = 0; i < 3; i++) {
+		prev.className = "";
+		prev = prev.previousElementSibling;
+	}
 	$("#homeMessage")[0].innerHTML = "";
 	$("#groupMessage")[0].innerHTML = "";
+	$("#userMessage")[0].innerHTML = "";
 	$("#homepage")[0].hidden = true;
 	$("#grouppage")[0].hidden = true;
 	$("#userpage")[0].hidden = true;
 	$("#searchpage")[0].hidden = false;
 };
 
-//DESIGN DECISION TO HAVE INSTAGRAM LINKS OPEN IN NEW TAB TP KEEP GROUPS
+//DESIGN DECISION TO HAVE INSTAGRAM LINKS OPEN IN NEW TAB TO KEEP GROUPS
 
 var createGroup = function(pic, username, id) { 
 	$("#homeMessage")[0].innerHTML = "";
+	$("#groupMessage")[0].innerHTML = "";
 	$("#grouppage")[0].children[1].children[1].innerHTML = "";
+	$("#groupContents")[0].innerHTML = "";
 	var textbox = "<form onsubmit=\"editGroup()\"><input type=\"text\" id=\"group\"></input>" +
 				  "<input type=\"text\" id=\"p\" value=\"" +
 				  pic +
@@ -50,22 +83,26 @@ var createGroup = function(pic, username, id) {
 				  "\" hidden></input><input type=\"text\" id=\"i\" value=\"" +
 				  id +
 				  "\" hidden></input><input type=\"text\" id=\"previous\" value=\"\" hidden></input>" +
-				  "<input type=\"submit\" value=\"Submit\"></input></form>";
+				  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form><br>";
 	if (id != -1) {
 		var row = $("#groupContents")[0].insertRow(0);
 		var cell = row.insertCell(0);
 		cell.innerHTML = "<img src=\"" + 
 					  	 pic + 
-						 "\"><br><a href=\"https://www.instagram.com/" + 
+						 "\" class=\"img-circle\"><br><a href=\"https://www.instagram.com/" + 
 						 username +
 				  	  	 "\" target=\"_blank\">" + 
 					  	 username + 
-						 "</a><button onclick=\"getRecent(" + 
+						 "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
+						 pic +
+						 "', '" +
+						 username +
+						 "', " +
 						 id + 
-						 ")\">Recent Uploads</button><button onclick=\"removeFromGroup(this)\">Remove</button>";
+						 ")\">Recent Uploads</button> <button class=\"btn btn-xs\" onclick=\"removeFromGroup(this)\">Remove</button>";
 	}
 	$("#grouppage")[0].children[1].children[0].outerHTML = textbox;
-	group();
+	group($("li")[1]);
 	$("#group")[0].focus();
 };
 
@@ -80,18 +117,24 @@ var editGroup = function() {
 	var content = "";
 	if (id != -1) {
 		content += "<li class=\"" + 
-				   username + 
-				   "\" hidden>" +
-				   pic +
-				   "</li><li class=\"" +
-				   username + 
-				   "\">" + 
-				   username + 
-				   "</li><li class=\"" + 
-				   username + 
-				   "\" hidden>" + 
-				   id +
-				   "</li>";
+				  username + 
+				  "\" hidden>" +
+				  pic +
+				  "</li><li class=\"" +
+				  username + 
+				  "\"><button class=\"btn btn-link\" onclick=\"getRecent('" + 
+				  pic +
+				  "', '" +
+				  username +
+				  "', " +
+				  id + 
+				  ")\">" + 
+				  username +
+				  "</button></li><li class=\"" + 
+				  username + 
+				  "\" hidden>" + 
+				  id +
+				  "</li>";
 	}
 	var message;
 	if (previous == "") {
@@ -111,29 +154,36 @@ var editGroup = function() {
 				cellIndex = 0;
 				cell = row.insertCell(cellIndex);
 				cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
-				row.previousElementSibling.cells[4].innerHTML = "<div id=\"" + 
+				row.previousElementSibling.cells[4].className = "groupCell";
+				row.previousElementSibling.cells[4].innerHTML = "<div class=\"groupCellMedia\"><div id=\"" + 
 																groupName + //HANDLE SPACES HERE!!!
-																"\" class=\"groupName\">" + 
+																"\" class=\"groupName\"><h3>" + 
 																groupName + 
-																"<ul>" +
+																"</h3><ul class=\"list-unstyled\">" +
 																content +
-																"</ul></div><button onclick=\"viewGroup(this)\">View/Edit</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+																"</ul></div>" +
+																"<button class=\"btn btn-xs\" onclick=\"viewGroup(this)\">View/Edit</button>" +
+																" <button class=\"btn btn-xs\" onclick=\"deleteGroup(this)\">Delete Group</button></div>";
 				addToMenus(groupName);
 			} else {
 				cell = row.insertCell(++cellIndex);
 				cell.innerHTML = cell.previousElementSibling.innerHTML;
-				cell.previousElementSibling.innerHTML = "<div id=\"" + 
+				cell.previousElementSibling.className = "groupCell";
+				cell.previousElementSibling.innerHTML = "<div class=\"groupCellMedia\"><div id=\"" + 
 														groupName + 
-														"\" class=\"groupName\">" + 
+														"\" class=\"groupName\"><h3>" + 
 														groupName + 
-														"<ul>" +
+														"</h3><ul class=\"list-unstyled\">" +
 														content + 
-														"</ul></div><button onclick=\"viewGroup(this)\">View/Edit</button><button onclick=\"deleteGroup(this)\">Delete Group</button>";
+														"</ul></div>" +
+														"<button class=\"btn btn-xs\" onclick=\"viewGroup(this)\">View/Edit</button>" +
+														" <button class=\"btn btn-xs\" onclick=\"deleteGroup(this)\">Delete Group</button></div>";
 				addToMenus(groupName);
 			}
 		} else {
+			$("#groupMessage")[0].className = "bg-danger";
 			$("#groupMessage")[0].innerHTML = message;
-			window.scrollTo
+			window.scrollTo(0,0);
 		}
 	} else {
 		if (groupName == previous) {
@@ -146,7 +196,7 @@ var editGroup = function() {
 				$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
 																	   groupName + 
 																	   "</h1>";
-				$("#" + previous)[0].firstChild.data = groupName;
+				$("#" + previous)[0].firstChild.innerHTML = groupName;
 				$("#" + previous)[0].id = groupName;
 				var options = $("." + previous);
 				for (var i = 0; i < options.length; i++) {
@@ -154,8 +204,9 @@ var editGroup = function() {
 					options[i].className = groupName;
 				}
 			} else {
+				$("#groupMessage")[0].className = "bg-danger";
 				$("#groupMessage")[0].innerHTML = message;
-				window.scrollTo
+				window.scrollTo(0,0);
 			}
 		}
 	}
@@ -179,13 +230,13 @@ var toTextbox = function(header) {
 				  "<input type=\"text\" id=\"group\" value=\"" +
 				  previous +
 				  "\"></input>" +
-				  "<input type=\"text\" id=\"p\" value=\"''\" hidden></input>" +
-				  "<input type=\"text\" id=\"u\" value=\"''\" hidden></input>" +
+				  "<input type=\"text\" id=\"p\" value=\"\" hidden></input>" +
+				  "<input type=\"text\" id=\"u\" value=\"\" hidden></input>" +
 				  "<input type=\"text\" id=\"i\" value=\"-1\" hidden></input>" +
 				  "<input type=\"text\" id=\"previous\" value=\"" +
 				  previous +
 				  "\" hidden></input>" +
-				  "<input type=\"submit\" value=\"Submit\"></input></form>";
+				  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form><br>";
 	header.outerHTML = textbox;
 };
 
@@ -196,7 +247,7 @@ var viewGroup = function(button) {
 	$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
 														   groupName + 
 														   "</h1>";
-	var list = div.children[0].children;
+	var list = div.children[1].children;
 	var table = $("#groupContents")[0];
 	table.innerHTML = "";
 	var row;
@@ -205,17 +256,29 @@ var viewGroup = function(button) {
 	var rowIndex = 0;
 	var cellIndex;
 	var i = 0;
+	var pic;
+	var id;
+	var username;
 	while (i < list.length) {
 		if (i % 3 == 0) {
+			pic = list[i++].innerHTML;
+			console.log(pic);
+			username = list[i++].children[0].innerHTML;
+			id = list[i++].innerHTML;
+			console.log(id);
 			content = "<img src=\"" + 
-					  list[i++].innerHTML + 
-					  "\"><br><a href=\"https://www.instagram.com/" + 
-					  list[i].innerHTML +
+					  pic + 
+					  "\" class=\"img-circle\"><br><a href=\"https://www.instagram.com/" + 
+					  username +
 					  "\" target=\"_blank\">" + 
-					  list[i++].innerHTML + 
-					  "</a><button onclick=\"getRecent(" + 
-					  list[i++].innerHTML + 
-					  ")\">Recent Uploads</button><button onclick=\"removeFromGroup(this)\">Remove</button>";
+					  username + 
+					  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
+					  pic + 
+					  "', '" +
+					  username +
+					  "', " +
+					  id +
+					  ")\">Recent Uploads</button> <button class=\"btn btn-xs\" onclick=\"removeFromGroup(this)\">Remove</button>";
 			if ((i - 3) % 15 == 0) {
 				row = table.insertRow(rowIndex++);
 				cellIndex = 0;
@@ -226,69 +289,97 @@ var viewGroup = function(button) {
 		}
 		cell.innerHTML = content;
 	}
-	group();
+	group($("li")[1]);
 };
 
-var getRecent = function(id) { //PRIVATE USERS???
+var getRecent = function(pic, username, id) { 
 	$("#groupMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
+	var options = getGroups();
+	$("#userFunction")[0].innerHTML = "<select onchange=\"addToGroup(this, '" + 
+						  			  pic + 
+						  			  "', '" +
+						  			  username +
+						  			  "', " + 
+						  			  id +
+						  			  ")\"><option selected disabled>Add to Group!</option><option>New Group</option>" +
+						  			  options +
+						  			  "</select>";
 	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
 			dataType: "jsonp",
 			success: handleMedia				
 	});
-	$(document).ready(user()); //ON READY STATE?? DOESNT WORK
+	$(document).ready(user($("li")[2])); //ON READY STATE?? DOESNT WORK
 };
 
 var handleMedia = function(data) {
-	var table;
-	if (this.url.indexOf("https://api.instagram.com/v1/users/") < 0) {
-		table = $("#searchResults")[0];
-	} else {
-		table = $("#userResults")[0];
-		$("#user")[0].innerHTML = data.data[0].user.username;
-	}
-	table.innerHTML = "";
-	var row;
-	var cell;
 	// make sure correct data is returned
 	if (data.meta.code != 200) {
-		table.innerHTML = data.meta.error_message;
-	} else {
+		if (this.url.indexOf("https://api.instagram.com/v1/users/") < 0) {
+			$("#searchMessage")[0].className = "bg-danger";
+			$("#searchMessage")[0].innerHTML = data.meta.error_message;
+		} else {
+			$("#userMessage")[0].className = "bg-danger";
+			$("#userMessage")[0].innerHTML = data.meta.error_message;
+		}
+		window.scrollTo(0,0);
+	} else {	
+		var table;
+		if (this.url.indexOf("https://api.instagram.com/v1/users/") < 0) {
+			table = $("#searchResults")[0];
+			window.scrollTo(0, 245);
+		} else {
+			table = $("#userResults")[0];
+			$("#user")[0].innerHTML = data.data[0].user.username;
+		}
+		table.innerHTML = "";
+		var row;
+		var cell;
 		var media = data.data;
 		var content = "";
 		// handle case when no data is returned
 		if (media.length < 1) {
-			table.innerHTML = "No results."
+			table.innerHTML = "No results."; //USE ERROR MESSAGE!!!
 		} else {
 			var index = 0;
 			var pv;
 			while (index < media.length) {
 				pv = media[index];
-				console.log(pv);
 				if (pv.type == "image") {
-					content += "<img src=\"" +
+					content += "<div class=\"mediaCellContents\"><img src=\"" +
 				    pv.images.standard_resolution.url +
-			  	    "\">";
+			  	    "\" class=\"img-thumbnail\">";
 				} else if (pv.type == "video") { // handles videos
-					content += "<video controls><source src=\"" +
+					content += "<div class=\"mediaCellContents\"><video controls><source src=\"" +
 			   	    pv.videos.standard_resolution.url +
 				    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
 				}
-				content += "<br>User: " + pv.user.username; //ADD ABILITY TO ADD TO A GROUP!! 
+				content += "<br><button class=\"btn btn-link\" onclick=\"getRecent('" + 
+						   pv.user.profile_picture +
+						   "', '" +
+						   pv.user.username +
+						   "', " +
+						   pv.user.id + 
+						   ")\">" + 
+						   pv.user.username + 
+						   "</button>"; 
 				if (pv.caption != null) {
-					content += "<br>Caption: " + pv.caption.text;
+					content += pv.caption.text;
 				} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
-				content += "<br>NumLikes: " +
-				   		   pv.likes.count +
-						   "<br>Time: " +
+				content += "<br>" +
 						   convert(pv.created_time) +
+						   " " +
+						   "<span class=\"glyphicon glyphicon-heart\"></span> " +
+						   pv.likes.count +
 						   "<br><a href=\"" +
 						   pv.link +
-						   "\" target=\"_blank\">Instagram</a>";
-				//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS!!!!COMMENTS CAN RESULT IN A PIC BEING TAGGED - RETHINK DECISION???
+						   "\" target=\"_blank\">Instagram</a></div>";
+				//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS
 				row = table.insertRow(index++);
+				row.className = "mediaRow";
 				cell = row.insertCell(0);
 				cell.innerHTML = content;
+				cell.className = "mediaCell";
 				content = "";
 			}
 		}
@@ -310,9 +401,13 @@ var convert = function(millis) {
 			hour = 12;
 		}
 	}
+	var minutes = date.getMinutes();
+	if (minutes < 10) {
+		minutes = "0" + minutes;
+	}
 	var ret = hour +
 			  ":" +
-			  date.getMinutes() + 
+			  minutes + 
 			  ampm +
 			  " " +
 			  (date.getMonth() + 1) +
@@ -355,10 +450,17 @@ var checkNextRow = function(cell, nextCell) {
 
 var deleteGroup = function(button) {
 	$("#homeMessage")[0].innerHTML = "";
-	$("#grouppage")[0].children[1].innerHTML = "<h1></h1><table id=\"groupContents\"></table>";
-	var cell = button.parentElement;
-	var groupName = cell.children[0].id;
+	$("#grouppage")[0].children[1].children[0].outerHTML = "<form onsubmit=\"editGroup()\">" +
+				  							   			  "<input type=\"text\" id=\"group\" value=\"\"></input>" +
+				  							   			  "<input type=\"text\" id=\"p\" value=\"\" hidden></input>" +
+				  							   			  "<input type=\"text\" id=\"u\" value=\"\" hidden></input>" +
+				  							   			  "<input type=\"text\" id=\"i\" value=\"-1\" hidden></input>" +
+				  							   			  "<input type=\"text\" id=\"previous\" value=\"\" hidden></input>" +
+				  							   			  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form><br>";
+	var cell = button.parentElement.parentElement;
+	var groupName = cell.children[0].children[0].id;
 	$("#groupMessage")[0].innerHTML = groupName + " has been deleted.";
+	$("#groupMessage")[0].className = "bg-warning";
 	$("." + groupName).remove();
 	var nextCell = cell.nextElementSibling;
 	nextCell = checkNextRow(cell, nextCell);
@@ -373,6 +475,7 @@ var deleteGroup = function(button) {
 	if (row.cells.length < 1) {
 		row.remove();
 	}
+	$("#homeMessage")[0].className = "bg-success";
 	$("#homeMessage")[0].innerHTML = groupName + " successfully deleted.";
 	window.scrollTo(0, 0);
 };
@@ -388,6 +491,7 @@ var addToMenus = function(groupName) {
 
 var submitForm = function() {
 	event.preventDefault();
+	$("#searchMessage")[0].innerHTML = "";
 	var choice = $("input:radio[name=type]:checked");
 	var table = $("#searchResults")[0];
 	if (choice.length > 0) {
@@ -398,39 +502,50 @@ var submitForm = function() {
 				// query instagram api for users
 				invalid = /\?/; // check for question marks
 				if (!invalid.test(query)) {
+					table.className = "table";
 					$.ajax({url: "https://api.instagram.com/v1/users/search?q=" + query + "&access_token=" + access_token, 
 							dataType: "jsonp",
 							success: handleUsers
 					});
 				} else {
-					table.innerHTML = "Invalid input!";
+					$("#searchMessage")[0].className = "bg-danger";
+					$("#searchMessage")[0].innerHTML = "Invalid input!";
+					window.scrollTo(0,0);
 				}
 			} else if (choice[0].value == "tags") {
 				// query instagram api for media based on tag
 				invalid = /[\[\]\\\/~`!@#$%^&*()-=+{}|;':"<>,.? ]/; // regular expression for invalid input
 				if (!invalid.test(query)) {
+					table.className = "";
 					$.ajax({url: "https://api.instagram.com/v1/tags/" + query + "/media/recent?access_token=" + access_token, 
 							dataType: "jsonp",
 							success: handleMedia
 					});
 				} else {
-					table.innerHTML = "Invalid input!";
+					$("#searchMessage")[0].className = "bg-danger";
+					$("#searchMessage")[0].innerHTML = "Invalid input!";
+					window.scrollTo(0,0);
 				}
 			} else if (choice[0].value == "places") {
 				// query google maps api for latitude and longitude of search query
 				invalid = /\?/; // check for question marks
 				if (!invalid.test(query)) {
+					table.className = "";
 					$.ajax({url: "https://maps.googleapis.com/maps/api/geocode/json?address=" + query + "&key=AIzaSyAEl6rZYUeweCN-LTlruBSiWFOPHlC59P8", 
 							dataType: "json",
 							success: searchOnCoordinates
 					});
 				} else {
-					table.innerHTML = "Invalid input!";
+					$("#searchMessage")[0].className = "bg-danger";
+					$("#searchMessage")[0].innerHTML = "Invalid input!";
+					window.scrollTo(0,0);
 				}
 			}
 		}
 	} else {
-		table.innerHTML = "Please select a filter!";
+		$("#searchMessage")[0].className = "bg-warning";
+		$("#searchMessage")[0].innerHTML = "Please select a filter.";
+		window.scrollTo(0,0);
 	}
 };
 
@@ -441,12 +556,15 @@ var handleUsers = function(data) {
 	var cell;
 	// make sure correct data is returned
 	if (data.meta.code != 200) {
-		table.innerHTML = data.meta.error_message;
+		$("#searchMessage")[0].className = "bg-danger";
+		$("#searchMessage")[0].innerHTML = data.meta.error_message;
+		window.scrollTo(0,0);
 	} else {
 		var users = data.data;
-		// handle case when no data is returned
 		if (users.length < 1) {
-			table.innerHTML = "No results."
+			$("#searchMessage")[0].className = "bg-danger";
+			$("#searchMessage")[0].innerHTML = "No results.";
+			window.scrollTo(0,0);
 		} else {
 			var index = 0;
 			var rowCount = 0;
@@ -458,19 +576,23 @@ var handleUsers = function(data) {
 				user = users[index];
 				content = "<img src=\"" + 
 						  user.profile_picture + 
-						  "\"><br><a href=\"https://www.instagram.com/" 
+						  "\" class=\"img-circle\"><br><a href=\"https://www.instagram.com/" 
 						  + user.username +
 						  "\" target=\"_blank\">" + 
 						  user.username + 
-						  "</a><button onclick=\"getRecent(" + 
+						  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
+						  user.profile_picture +
+						  "', '" +
+						  user.username +
+						  "', " +
 						  user.id + 
-						  ")\">Recent Uploads</button><select onchange=\"addToGroup(this, '" + 
+						  ")\">Recent Uploads</button><br><select onchange=\"addToGroup(this, '" + 
 						  user.profile_picture + 
 						  "', '" +
 						  user.username +
 						  "', " + 
 						  user.id +
-						  ")\"><option selected disabled>Choose A Group!</option><option>New Group</option>" + // MUST BE ABLE TO ADD TO NEW GROUP
+						  ")\"><option selected disabled>Add to Group!</option><option>New Group</option>" +
 						  options +
 						  "</select>"
 				if (index % 5 == 0) { // add a new row after 5 cells
@@ -486,6 +608,7 @@ var handleUsers = function(data) {
 				content = "";
 				index++;
 			}
+			window.scrollTo(0, 245);
 		}
 	}
 };
@@ -504,7 +627,9 @@ var getGroups = function() {
 };
 
 var addToGroup = function(select, pic, username, id) {
+	console.log(select);
 	$("#searchMessage")[0].innerHTML = "";
+	$("#userMessage")[0].innerHTML = "";
 	var groupName = select.value;
 	var element = "<li class=\"" + 
 				  username + 
@@ -512,51 +637,65 @@ var addToGroup = function(select, pic, username, id) {
 				  pic +
 				  "</li><li class=\"" +
 				  username + 
-				  "\">" + 
-				  username + 
-				  "</li><li class=\"" + 
+				  "\"><button class=\"btn btn-link\" onclick=\"getRecent('" + 
+				  pic +
+				  "', '" +
+				  username +
+				  "', " +
+				  id + 
+				  ")\">" + 
+				  username +
+				  "</button></li><li class=\"" + 
 				  username + 
 				  "\" hidden>" + 
 				  id +
 				  "</li>";
 	if (groupName != "New Group") {
 		if ($("#" + groupName + " ." + username).length < 1) { // if user is not in group
-			$("#" + groupName)[0].children[0].innerHTML += element;
-			var header = $("#currentGroup")[0]; //WHAT IF NO GROUP BEING DISPLAYED
-			if (header.innerHTML == groupName) {
-				var content = "<img src=\"" + 
-					  		  pic + 
-						  	  "\"><br><a href=\"https://www.instagram.com/" + 
-						  	  username +
-						  	  "\" target=\"_blank\">" + 
-						  	  username + 
-						  	  "</a><button onclick=\"getRecent(" + 
-						  	  id + 
-						  	  ")\">Recent Uploads</button><button onclick=\"removeFromGroup(this)\">Remove</button>";
-				var table = header.nextElementSibling;
-				var rows = table.rows;
-				var rowIndex = rows.length - 1;
-				var row;
-				var cell;
-				if (rowIndex >= 0) {
-					row = rows[rowIndex];
-					var cellIndex = row.cells.length;
-					if (cellIndex == 5) {
-						row = table.insertRow(++rowIndex);
+			$("#" + groupName)[0].children[1].innerHTML += element;
+			var header = $("#currentGroup");
+			if (header.length > 0) {
+				if (header[0].innerHTML == groupName) {
+					var content = "<img src=\"" + 
+						  		  pic + 
+							  	  "\" class=\"img-circle\"><br><a href=\"https://www.instagram.com/" + 
+							  	  username +
+							  	  "\" target=\"_blank\">" + 
+							  	  username + 
+							  	  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
+							  	  pic +
+							  	  "', '" +
+							  	  username +
+						  		  "', " +
+							  	  id + 
+							  	  ")\">Recent Uploads</button> <button class=\"btn btn-xs\"onclick=\"removeFromGroup(this)\">Remove</button>";
+					var table = $("#groupContents")[0];
+					var rows = table.rows;
+					var rowIndex = rows.length - 1;
+					var row;
+					var cell;
+					if (rowIndex >= 0) {
+						row = rows[rowIndex];
+						var cellIndex = row.cells.length;
+						if (cellIndex == 5) {
+							row = table.insertRow(++rowIndex);
+							cell = row.insertCell(0);
+							cell.innerHTML = content;
+						} else {
+							cell = row.insertCell(cellIndex);
+							cell.innerHTML = content;
+						}
+					} else {
+						row = table.insertRow(0);
 						cell = row.insertCell(0);
 						cell.innerHTML = content;
-					} else {
-						cell = row.insertCell(cellIndex);
-						cell.innerHTML = content;
 					}
-				} else {
-					row = table.insertRow(0);
-					cell = row.insertCell(0);
-					cell.innerHTML = content;
 				}
 			}
+			$("#searchMessage")[0].className = "bg-success";
 			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName + ".";
 		} else {
+			$("#searchMessage")[0].className = "bg-warning";
 			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName + ".";
 		}
 		window.scrollTo(0, 0);
@@ -577,6 +716,13 @@ var searchOnCoordinates = function(data) {
 		});
 	} else {
 		var table = $("#searchResults")[0];
-		table.innerHTML = "No results.";
+		$("#searchMessage")[0].className = "bg-danger";
+		$("#searchMessage")[0].innerHTML = "Invalid input!"; //CHECK THIS
 	}
+};
+
+var searchUsers = function() {
+	$("#people")[0].checked = true;
+	$("#searchResults")[0].innerHTML = "";
+	toSearch($("li")[3]);
 };

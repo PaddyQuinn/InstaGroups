@@ -1,3 +1,69 @@
 #currentGroup:hover {
 	border-style: groove;
 }
+
+nav, select, .btn-xs, .btn-md {
+	background-color: #125688;
+	color: white;
+	border: 0px;
+	outline: 0px;
+}
+
+h1, form, td, #userFunction {
+	text-align: center;
+}
+
+option {
+	color: white;
+}
+
+table {
+	margin: 0 auto !important;
+}
+
+.mediaRow {
+	padding: 10em;
+}
+
+.mediaCell {
+	padding-bottom: 2em;
+}
+
+.mediaCellContents {
+	width: 320px;
+	padding: 2em;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	-ms-border-radius: 20px;
+	border-radius: 20px;
+	background-color: #f0ede7;
+	word-wrap: break-word;
+}
+
+.groupCellMedia {
+	background-color: #f0ede7;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	-ms-border-radius: 20px;
+	border-radius: 20px;
+	display: inline-block;
+	padding-left: 5em;
+	padding-right: 5em;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	/*word-wrap: break-word; SET WIDTH OF CELL???*/ 
+}
+
+.glyphicon-plus {
+	margin: 0 auto !important;
+}
+
+video {
+	width: 100%    !important;
+ 	height: auto   !important;
+}
+
+#group {
+	height: 39px;
+	width: 1315px;
+}

@@ -2,63 +2,94 @@
 <html>
  <head>
   <title>InstaGroups</title>
+  <meta charset="UTF-8"> 
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+  <!--<link rel="stylesheet" type="text/css" href="bootstrap-theme.css">-->
   <script src="jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="script.js"></script>
  </head>
  <body>
   <nav>
-   <div>
-    <button onclick="goHome()">InstaGroups</button>
-    <button onclick="group()">Group</button>
-    <button onclick="user()">User</button>
-    <button onclick="search()">Search</button>
-   </div>
+   <ul class="nav nav-tabs nav-justified"> <!-- MAKE NAVBAR STAY AT TOP -->
+    <li role="presentation" class="active" onclick="goHome(this)">
+     <a href="#"><span class="glyphicon glyphicon-home"></span></a>
+    </li>
+    <li role="presentation" onclick="group(this)">
+     <a href="#"><span class="glyphicon glyphicon-th-large"></span></a>
+    </li>
+    <li role="presentation" onclick="user(this)">
+     <a href="#"><span class="glyphicon glyphicon-user"></span></a>
+    </li>
+    <li role="presentation" onclick="toSearch(this)">
+     <a href="#"><span class="glyphicon glyphicon-search"></span></a>
+    </li>
+   </ul>
   </nav>
-  <div id="homepage"> <!-- UI DECISION TO START ON GROUPS PAGE -->
+  <div id="homepage" class="container-fluid"> <!-- UI DECISION TO START ON GROUPS PAGE -->
    <h1>InstaGroups</h1>
    <div>
-    <h6 id="homeMessage"></h6>
+    <h4 id="homeMessage"></h4>
    </div>
    <div>
-    <table id="groups">
+    <table id="groups" class="table">
      <tbody>
       <tr>
        <td>
-        <button onclick="createGroup('', '', -1)">New Group</button>
+        <button class="btn btn-lg" onclick="createGroup('', '', -1)">
+         <div class="glyphicon glyphicon-plus"></div>
+        </button>
        </td>
       </tr>
      </tbody>
     </table>
    </div>
   </div>
-  <div id="grouppage" hidden>
+  <div id="grouppage" class="container-fluid" hidden>
    <div>
-    <h6 id="groupMessage"></h6>
+    <h4 id="groupMessage"></h4>
    </div>
-   <div>
-    <h1></h1>
-    <table id="groupContents"></table>
+   <div id="groupHeader">
+    <form onsubmit="editGroup()">
+      <input type="text" id="group"></input>
+      <input type="text" id="p" value="" hidden></input>
+      <input type="text" id="u" value="" hidden></input>
+      <input type="text" id="i" value="id" hidden></input>
+      <input type="text" id="previous" value="" hidden></input>
+      <br><br>
+      <input type="submit" class="btn btn-md" value="Submit"></input>
+    </form>
+    <table id="groupContents" class="table"></table>
    </div>
   </div>
-  <div id="userpage" hidden>
+  <div id="userpage" class="container-fluid" hidden>
+   <h4 id="userMessage"></h4>
    <h1 id="user"></h1> <!-- NEED BETTER ORIGINAL USERPAGE WHEN BLANK, POSSIBLY SEARCH BUTTON? -->
+   <div id="userFunction">
+    <button class="btn btn-md" onclick="searchUsers()">Search Users</button>
+   </div>
+   <br>
    <table id="userResults"></table>
   </div>
-  <div id="searchpage" hidden>
+  <div id="searchpage" class="container-fluid" hidden>
    <h1>Search</h1>
    <div>
-    <h6 id="searchMessage"></h6>
+    <h4 id="searchMessage"></h4>
    </div>
    <div>
-    <form onsubmit="submitForm()">
-     <input type="radio" name="type" value="people">People</input>
-     <input type="radio" name="type" value="tags">Tags</input>
-     <input type="radio" name="type" value="places">Places</input>
+    <form id="searchForm" onsubmit="submitForm()">
+     <ul class="list-inline">
+      <li><input type="radio" name="type" id="people" value="people"><br>People</input></li>
+      <li><input type="radio" name="type" id="tags" value="tags"><br>Tags</input></li>
+      <li><input type="radio" name="type" id="places" value="places"><br>Places</input></li>
+     </ul>
    	 <input type="text" id="search" placeholder="Search"></input>
-   	 <input type="submit" value="Search"></input>
+     <br><br>
+   	 <input type="submit" class="btn btn-md" value="Search"></input>
     </form>
    </div>
+   <br>
    <div>
     <table id="searchResults"></table>
    </div>
