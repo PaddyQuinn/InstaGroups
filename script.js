@@ -68,7 +68,7 @@ var toSearch = function(li) {
 	$("#searchpage")[0].hidden = false;
 };
 
-//DESIGN DECISION TO HAVE INSTAGRAM LINKS OPEN IN NEW TAB TO KEEP GROUPS
+// UI Decision: Have links to Instagram open on a new page to preserve the session
 
 var createGroup = function(pic, username, id) { 
 	$("#homeMessage")[0].innerHTML = "";
@@ -368,7 +368,7 @@ var handleMedia = function(data) {
 				content += "<div class=\"mediaCellContents\"><img src=\"" +
 			    pv.images.standard_resolution.url +
 			    "\" class=\"img-thumbnail\">";
-			} else if (pv.type == "video") { // handles videos
+			} else if (pv.type == "video") { // UI Decision: Handles videos
 				content += "<div class=\"mediaCellContents\"><video controls><source src=\"" +
 		   	    pv.videos.standard_resolution.url +
 			    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
@@ -380,7 +380,7 @@ var handleMedia = function(data) {
 					   "</button>"; 
 			if (pv.caption != null) {
 				content += pv.caption.text;
-			} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
+			} // UI Decision: Display nothing when there is no caption
 			content += "<br>" +
 					   convert(pv.created_time) +
 					   " " +
@@ -389,7 +389,7 @@ var handleMedia = function(data) {
 					   "<br><a href=\"" +
 					   pv.link +
 					   "\" target=\"_blank\">Instagram</a></div>";
-			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS
+			// UI Decision: Do not have a separate display for tags
 			row = table.insertRow(index++);
 			row.className = "mediaRow";
 			cell = row.insertCell(0);
@@ -514,7 +514,7 @@ var submitForm = function() {
 	var table = $("#searchResults")[0];
 	if (choice.length > 0) {
 		var query = $("#search")[0].value;
-		var invalid; //UI DECISION TO MAKE SURE VALID INPUT
+		var invalid; // UI Decision: Ensure valid input is given otherwise throw an error
 		if (query.length > 0) {
 			if (choice[0].value == "people") {
 				// query instagram api for users
@@ -590,7 +590,7 @@ var handleUsers = function(data) {
 			var user;
 			var content = "";
 			var options = getGroups();
-			while (index < 20 && index < users.length) { //UI DESIGN DECISION TO HANDLE 20!!!
+			while (index < 20 && index < users.length) { // UI Decision: Handle at most 20 users
 				user = users[index];
 				content = "<img src=\"" + 
 						  user.profile_picture + 
