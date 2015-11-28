@@ -75,7 +75,7 @@ var createGroup = function(pic, username, id) {
 	$("#groupMessage")[0].innerHTML = "";
 	$("#grouppage")[0].children[1].children[1].innerHTML = "";
 	$("#groupContents")[0].innerHTML = "";
-	var textbox = "<form onsubmit=\"editGroup()\"><input type=\"text\" id=\"group\"></input>" +
+	var textbox = "<form onsubmit=\"editGroup()\"><input type=\"text\" id=\"group\" value=\"\" onfocus=\"this.value = this.value;\"></input>" +
 				  "<input type=\"text\" id=\"p\" value=\"" +
 				  pic +
 				  "\" hidden></input><input type=\"text\" id=\"u\" value=\"" +
@@ -83,7 +83,7 @@ var createGroup = function(pic, username, id) {
 				  "\" hidden></input><input type=\"text\" id=\"i\" value=\"" +
 				  id +
 				  "\" hidden></input><input type=\"text\" id=\"previous\" value=\"\" hidden></input>" +
-				  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form><br>";
+				  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form>";
 	if (id != -1) {
 		var row = $("#groupContents")[0].insertRow(0);
 		var cell = row.insertCell(0);
@@ -93,11 +93,7 @@ var createGroup = function(pic, username, id) {
 						 username +
 				  	  	 "\" target=\"_blank\">" + 
 					  	 username + 
-						 "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
-						 pic +
-						 "', '" +
-						 username +
-						 "', " +
+						 "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent(" + 
 						 id + 
 						 ")\">Recent Uploads</button> <button class=\"btn btn-xs\" onclick=\"removeFromGroup(this)\">Remove</button>";
 	}
@@ -122,11 +118,7 @@ var editGroup = function() {
 				  pic +
 				  "</li><li class=\"" +
 				  username + 
-				  "\"><button class=\"btn btn-link\" onclick=\"getRecent('" + 
-				  pic +
-				  "', '" +
-				  username +
-				  "', " +
+				  "\"><button class=\"btn btn-link\" onclick=\"getRecent(" + 
 				  id + 
 				  ")\">" + 
 				  username +
@@ -156,10 +148,10 @@ var editGroup = function() {
 				cell.innerHTML = row.previousElementSibling.cells[4].innerHTML;
 				row.previousElementSibling.cells[4].className = "groupCell";
 				row.previousElementSibling.cells[4].innerHTML = "<div class=\"groupCellMedia\"><div id=\"" + 
-																groupName + //HANDLE SPACES HERE!!!
-																"\" class=\"groupName\"><h3>" + 
+																encode(groupName) +
+																"\" class=\"groupName\"><h4>" + 
 																groupName + 
-																"</h3><ul class=\"list-unstyled\">" +
+																"</h4><ul class=\"list-unstyled\">" +
 																content +
 																"</ul></div>" +
 																"<button class=\"btn btn-xs\" onclick=\"viewGroup(this)\">View/Edit</button>" +
@@ -170,10 +162,10 @@ var editGroup = function() {
 				cell.innerHTML = cell.previousElementSibling.innerHTML;
 				cell.previousElementSibling.className = "groupCell";
 				cell.previousElementSibling.innerHTML = "<div class=\"groupCellMedia\"><div id=\"" + 
+														encode(groupName) + 
+														"\" class=\"groupName\"><h4>" + 
 														groupName + 
-														"\" class=\"groupName\"><h3>" + 
-														groupName + 
-														"</h3><ul class=\"list-unstyled\">" +
+														"</h4><ul class=\"list-unstyled\">" +
 														content + 
 														"</ul></div>" +
 														"<button class=\"btn btn-xs\" onclick=\"viewGroup(this)\">View/Edit</button>" +
@@ -196,12 +188,13 @@ var editGroup = function() {
 				$("#grouppage")[0].children[1].children[0].outerHTML = "<h1 id=\"currentGroup\" onclick=\"toTextbox(this)\">" + 
 																	   groupName + 
 																	   "</h1>";
+				previous = encode(previous);
 				$("#" + previous)[0].firstChild.innerHTML = groupName;
-				$("#" + previous)[0].id = groupName;
+				$("#" + previous)[0].id = encode(groupName);
 				var options = $("." + previous);
 				for (var i = 0; i < options.length; i++) {
 					options[i].innerHTML = groupName;
-					options[i].className = groupName;
+					options[i].className = encode(groupName);
 				}
 			} else {
 				$("#groupMessage")[0].className = "bg-danger";
@@ -213,15 +206,49 @@ var editGroup = function() {
 };
 
 var checkGroupName = function(groupName) {
+	var invalid = /[\[\]\\\/~`!@#$%\^&*()\-=+{}\|;':"<>,.?_]/;
 	if (groupName == "") {
 		return "Please enter a group name.";
-	} else if ($("#" + groupName).length > 0) {
-		return groupName + " already used.";
-	} else if (groupName == "New Group") {
+	} else if (groupName.length > 20) {
+		return "Group name too long."
+	} else if (invalid.test(groupName)) {
+		return "Invalid group name.";
+	} else if (groupName == "homepage" || 
+			groupName == "homeMessage" ||
+			groupName == "groups" ||
+			groupName == "grouppage" ||
+			groupName == "groupMessage" ||
+			groupName == "groupHeader" ||
+			groupName == "group" ||
+			groupName == "p" ||
+			groupName == "u" ||
+			groupName == "i" ||
+			groupName == "previous" ||
+			groupName == "groupContents" ||
+			groupName == "userpage" ||
+			groupName == "userMessage" ||
+			groupName == "user" ||
+			groupName == "userFunction" ||
+			groupName == "userResults" ||
+			groupName == "searchpage" ||
+			groupName == "searchMessage" ||
+			groupName == "searchForm" ||
+			groupName == "search" ||
+			groupName == "searchResults" ||
+			groupName == "currentGroup" ||
+			groupName == "groupContents" ||
+			groupName == "people" ||
+			groupName == "New Group") {
 		return "Illegal group name.";
+	} else if ($("#" + encode(groupName)).length > 0) {
+		return groupName + " already used.";
 	} else {
 		return groupName;
 	}
+};
+
+var encode = function(groupName) {
+	return groupName.replace(/ /g, "_");
 };
 
 var toTextbox = function(header) {
@@ -229,15 +256,16 @@ var toTextbox = function(header) {
 	var textbox = "<form onsubmit=\"editGroup()\">" +
 				  "<input type=\"text\" id=\"group\" value=\"" +
 				  previous +
-				  "\"></input>" +
+				  "\" onfocus=\"this.value = this.value;\"></input>" +
 				  "<input type=\"text\" id=\"p\" value=\"\" hidden></input>" +
 				  "<input type=\"text\" id=\"u\" value=\"\" hidden></input>" +
 				  "<input type=\"text\" id=\"i\" value=\"-1\" hidden></input>" +
 				  "<input type=\"text\" id=\"previous\" value=\"" +
 				  previous +
 				  "\" hidden></input>" +
-				  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form><br>";
+				  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form>";
 	header.outerHTML = textbox;
+	$("#group")[0].focus();
 };
 
 var viewGroup = function(button) {
@@ -262,21 +290,15 @@ var viewGroup = function(button) {
 	while (i < list.length) {
 		if (i % 3 == 0) {
 			pic = list[i++].innerHTML;
-			console.log(pic);
 			username = list[i++].children[0].innerHTML;
 			id = list[i++].innerHTML;
-			console.log(id);
 			content = "<img src=\"" + 
 					  pic + 
 					  "\" class=\"img-circle\"><br><a href=\"https://www.instagram.com/" + 
 					  username +
 					  "\" target=\"_blank\">" + 
 					  username + 
-					  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
-					  pic + 
-					  "', '" +
-					  username +
-					  "', " +
+					  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent(" + 
 					  id +
 					  ")\">Recent Uploads</button> <button class=\"btn btn-xs\" onclick=\"removeFromGroup(this)\">Remove</button>";
 			if ((i - 3) % 15 == 0) {
@@ -292,24 +314,14 @@ var viewGroup = function(button) {
 	group($("li")[1]);
 };
 
-var getRecent = function(pic, username, id) { 
+var getRecent = function(id) { 
 	$("#groupMessage")[0].innerHTML = "";
 	$("#searchMessage")[0].innerHTML = "";
-	var options = getGroups();
-	$("#userFunction")[0].innerHTML = "<select onchange=\"addToGroup(this, '" + 
-						  			  pic + 
-						  			  "', '" +
-						  			  username +
-						  			  "', " + 
-						  			  id +
-						  			  ")\"><option selected disabled>Add to Group!</option><option>New Group</option>" +
-						  			  options +
-						  			  "</select>";
 	$.ajax({url: "https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + access_token,
 			dataType: "jsonp",
 			success: handleMedia				
 	});
-	$(document).ready(user($("li")[2])); //ON READY STATE?? DOESNT WORK
+	$(document).ready(user($("li")[2]));
 };
 
 var handleMedia = function(data) {
@@ -325,63 +337,65 @@ var handleMedia = function(data) {
 		window.scrollTo(0,0);
 	} else {	
 		var table;
+		var media = data.data;
 		if (this.url.indexOf("https://api.instagram.com/v1/users/") < 0) {
 			table = $("#searchResults")[0];
 			window.scrollTo(0, 245);
 		} else {
 			table = $("#userResults")[0];
 			$("#user")[0].innerHTML = data.data[0].user.username;
+			var options = getGroups();
+			$("#userFunction")[0].innerHTML = "<select onchange=\"addToGroup(this, '" +
+						  			  		  media[0].user.profile_picture +
+						   					  "', '" +
+											  media[0].user.username +
+											  "', " +
+											  media[0].user.id +
+						  					  ")\"><option selected disabled>Add to Group!</option><option>New Group</option>" +
+						  					  options +
+						  			 		  "</select>";
 		}
 		table.innerHTML = "";
 		var row;
 		var cell;
-		var media = data.data;
 		var content = "";
 		// handle case when no data is returned
-		if (media.length < 1) {
-			table.innerHTML = "No results."; //USE ERROR MESSAGE!!!
-		} else {
-			var index = 0;
-			var pv;
-			while (index < media.length) {
-				pv = media[index];
-				if (pv.type == "image") {
-					content += "<div class=\"mediaCellContents\"><img src=\"" +
-				    pv.images.standard_resolution.url +
-			  	    "\" class=\"img-thumbnail\">";
-				} else if (pv.type == "video") { // handles videos
-					content += "<div class=\"mediaCellContents\"><video controls><source src=\"" +
-			   	    pv.videos.standard_resolution.url +
-				    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
-				}
-				content += "<br><button class=\"btn btn-link\" onclick=\"getRecent('" + 
-						   pv.user.profile_picture +
-						   "', '" +
-						   pv.user.username +
-						   "', " +
-						   pv.user.id + 
-						   ")\">" + 
-						   pv.user.username + 
-						   "</button>"; 
-				if (pv.caption != null) {
-					content += pv.caption.text;
-				} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
-				content += "<br>" +
-						   convert(pv.created_time) +
-						   " " +
-						   "<span class=\"glyphicon glyphicon-heart\"></span> " +
-						   pv.likes.count +
-						   "<br><a href=\"" +
-						   pv.link +
-						   "\" target=\"_blank\">Instagram</a></div>";
-				//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS
-				row = table.insertRow(index++);
-				row.className = "mediaRow";
-				cell = row.insertCell(0);
-				cell.innerHTML = content;
-				cell.className = "mediaCell";
-				content = "";
+		var index = 0;
+		var pv;
+		while (index < media.length) {
+			pv = media[index];
+			if (pv.type == "image") {
+				content += "<div class=\"mediaCellContents\"><img src=\"" +
+			    pv.images.standard_resolution.url +
+			    "\" class=\"img-thumbnail\">";
+			} else if (pv.type == "video") { // handles videos
+				content += "<div class=\"mediaCellContents\"><video controls><source src=\"" +
+		   	    pv.videos.standard_resolution.url +
+			    "\" type=\"video/mp4\">Your browser does not support the video tag</video>";
 			}
+			content += "<br><button class=\"btn btn-link\" onclick=\"getRecent(" + 
+					   pv.user.id + 
+					   ")\">" + 
+					   pv.user.username + 
+					   "</button>"; 
+			if (pv.caption != null) {
+				content += pv.caption.text;
+			} //UI DECISION NOT TO DISPLAY ANYTHING WHEN THERE IS NO CAPTION
+			content += "<br>" +
+					   convert(pv.created_time) +
+					   " " +
+					   "<span class=\"glyphicon glyphicon-heart\"></span> " +
+					   pv.likes.count +
+					   "<br><a href=\"" +
+					   pv.link +
+					   "\" target=\"_blank\">Instagram</a></div>";
+			//UI DECISION TO NOT HAVE A SEPARATE THING FOR TAGS
+			row = table.insertRow(index++);
+			row.className = "mediaRow";
+			cell = row.insertCell(0);
+			cell.innerHTML = content;
+			cell.className = "mediaCell";
+			content = "";
 		}
 	}
 };
@@ -451,15 +465,15 @@ var checkNextRow = function(cell, nextCell) {
 var deleteGroup = function(button) {
 	$("#homeMessage")[0].innerHTML = "";
 	$("#grouppage")[0].children[1].children[0].outerHTML = "<form onsubmit=\"editGroup()\">" +
-				  							   			  "<input type=\"text\" id=\"group\" value=\"\"></input>" +
+				  							   			  "<input type=\"text\" id=\"group\" value=\"\" onfocus=\"this.value = this.value;\"></input>" +
 				  							   			  "<input type=\"text\" id=\"p\" value=\"\" hidden></input>" +
 				  							   			  "<input type=\"text\" id=\"u\" value=\"\" hidden></input>" +
 				  							   			  "<input type=\"text\" id=\"i\" value=\"-1\" hidden></input>" +
 				  							   			  "<input type=\"text\" id=\"previous\" value=\"\" hidden></input>" +
-				  							   			  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form><br>";
+				  							   			  "<br><br><input type=\"submit\" class=\"btn btn-md\" value=\"Submit\"></input></form>";
 	var cell = button.parentElement.parentElement;
 	var groupName = cell.children[0].children[0].id;
-	$("#groupMessage")[0].innerHTML = groupName + " has been deleted.";
+	$("#groupMessage")[0].innerHTML = decode(groupName) + " has been deleted.";
 	$("#groupMessage")[0].className = "bg-warning";
 	$("." + groupName).remove();
 	var nextCell = cell.nextElementSibling;
@@ -476,8 +490,12 @@ var deleteGroup = function(button) {
 		row.remove();
 	}
 	$("#homeMessage")[0].className = "bg-success";
-	$("#homeMessage")[0].innerHTML = groupName + " successfully deleted.";
+	$("#homeMessage")[0].innerHTML = decode(groupName) + " successfully deleted.";
 	window.scrollTo(0, 0);
+};
+
+var decode = function(groupName) {
+	return groupName.replace(/_/g, " ");
 };
 
 var addToMenus = function(groupName) {
@@ -485,7 +503,7 @@ var addToMenus = function(groupName) {
 	var menu;
 	for (var i = 0; i < menus.length; i++) {
 		menu = menus[i];
-		menu.innerHTML = menu.innerHTML + "<option class=\"" + groupName + "\">" + groupName + "</option>";
+		menu.innerHTML = menu.innerHTML + "<option class=\"" + encode(groupName) + "\">" + groupName + "</option>";
 	}
 };
 
@@ -514,7 +532,7 @@ var submitForm = function() {
 				}
 			} else if (choice[0].value == "tags") {
 				// query instagram api for media based on tag
-				invalid = /[\[\]\\\/~`!@#$%^&*()-=+{}|;':"<>,.? ]/; // regular expression for invalid input
+				invalid = /[\[\]\\\/~`!@#$%\^&*()\-=+{}\|;':"<>,.? ]/; // regular expression for invalid input
 				if (!invalid.test(query)) {
 					table.className = "";
 					$.ajax({url: "https://api.instagram.com/v1/tags/" + query + "/media/recent?access_token=" + access_token, 
@@ -580,11 +598,7 @@ var handleUsers = function(data) {
 						  + user.username +
 						  "\" target=\"_blank\">" + 
 						  user.username + 
-						  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
-						  user.profile_picture +
-						  "', '" +
-						  user.username +
-						  "', " +
+						  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent(" + 
 						  user.id + 
 						  ")\">Recent Uploads</button><br><select onchange=\"addToGroup(this, '" + 
 						  user.profile_picture + 
@@ -608,7 +622,7 @@ var handleUsers = function(data) {
 				content = "";
 				index++;
 			}
-			window.scrollTo(0, 245);
+			window.scrollTo(0, 227);
 		}
 	}
 };
@@ -619,29 +633,23 @@ var getGroups = function() {
 	if (groups.length > 0) {
 		var groupName;
 		for (var i = 0; i < groups.length; i++) {
-			groupName = groups[i].id;
-			ret += "<option class=\"" + groupName + "\">" + groupName + "</option>";
+			groupName = groups[i].children[0].innerHTML;
+			ret += "<option class=\"" + encode(groupName) + "\">" + groupName + "</option>";
 		}
 	}
 	return ret;
 };
 
 var addToGroup = function(select, pic, username, id) {
-	console.log(select);
 	$("#searchMessage")[0].innerHTML = "";
 	$("#userMessage")[0].innerHTML = "";
-	var groupName = select.value;
 	var element = "<li class=\"" + 
 				  username + 
 				  "\" hidden>" +
 				  pic +
 				  "</li><li class=\"" +
 				  username + 
-				  "\"><button class=\"btn btn-link\" onclick=\"getRecent('" + 
-				  pic +
-				  "', '" +
-				  username +
-				  "', " +
+				  "\"><button class=\"btn btn-link\" onclick=\"getRecent(" + 
 				  id + 
 				  ")\">" + 
 				  username +
@@ -650,23 +658,27 @@ var addToGroup = function(select, pic, username, id) {
 				  "\" hidden>" + 
 				  id +
 				  "</li>";
+	var groupName = select.value;
 	if (groupName != "New Group") {
+		var messageBox;
+		groupName = encode(groupName);
+		if (select.parentElement.nodeName == "DIV") {
+			messageBox = $("#userMessage")[0];
+		} else {
+			messageBox = $("#searchMessage")[0];
+		}
 		if ($("#" + groupName + " ." + username).length < 1) { // if user is not in group
 			$("#" + groupName)[0].children[1].innerHTML += element;
 			var header = $("#currentGroup");
 			if (header.length > 0) {
-				if (header[0].innerHTML == groupName) {
+				if (encode(header[0].innerHTML) == groupName) {
 					var content = "<img src=\"" + 
 						  		  pic + 
 							  	  "\" class=\"img-circle\"><br><a href=\"https://www.instagram.com/" + 
 							  	  username +
 							  	  "\" target=\"_blank\">" + 
 							  	  username + 
-							  	  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent('" + 
-							  	  pic +
-							  	  "', '" +
-							  	  username +
-						  		  "', " +
+							  	  "</a><br><button class=\"btn btn-xs\" onclick=\"getRecent(" + 
 							  	  id + 
 							  	  ")\">Recent Uploads</button> <button class=\"btn btn-xs\"onclick=\"removeFromGroup(this)\">Remove</button>";
 					var table = $("#groupContents")[0];
@@ -692,11 +704,11 @@ var addToGroup = function(select, pic, username, id) {
 					}
 				}
 			}
-			$("#searchMessage")[0].className = "bg-success";
-			$("#searchMessage")[0].innerHTML = username + " was successfully added to " + groupName + ".";
+			messageBox.className = "bg-success";
+			messageBox.innerHTML = username + " was successfully added to " + decode(groupName) + ".";
 		} else {
-			$("#searchMessage")[0].className = "bg-warning";
-			$("#searchMessage")[0].innerHTML = username + " already belongs to " + groupName + ".";
+			messageBox.className = "bg-warning";
+			messageBox.innerHTML = username + " already belongs to " + decode(groupName) + ".";
 		}
 		window.scrollTo(0, 0);
 	} else {
@@ -717,7 +729,7 @@ var searchOnCoordinates = function(data) {
 	} else {
 		var table = $("#searchResults")[0];
 		$("#searchMessage")[0].className = "bg-danger";
-		$("#searchMessage")[0].innerHTML = "Invalid input!"; //CHECK THIS
+		$("#searchMessage")[0].innerHTML = "An error occurred with the Google Maps API.";
 	}
 };
 

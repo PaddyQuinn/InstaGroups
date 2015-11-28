@@ -47,8 +47,8 @@ table {
 	-ms-border-radius: 20px;
 	border-radius: 20px;
 	display: inline-block;
-	padding-left: 5em;
-	padding-right: 5em;
+	padding-left: 1em;
+	padding-right: 1em;
 	padding-top: 1em;
 	padding-bottom: 1em;
 	/*word-wrap: break-word; SET WIDTH OF CELL???*/ 
@@ -66,4 +66,8 @@ video {
 #group {
 	height: 39px;
 	width: 1315px;
+}
+
+#homepage, #grouppage, #userpage, #searchpage {
+	padding-top: 50px;
 }

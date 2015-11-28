@@ -6,13 +6,12 @@
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
   <link rel="stylesheet" type="text/css" href="styles.css">
   <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
-  <!--<link rel="stylesheet" type="text/css" href="bootstrap-theme.css">-->
   <script src="jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="script.js"></script>
  </head>
  <body>
-  <nav>
-   <ul class="nav nav-tabs nav-justified"> <!-- MAKE NAVBAR STAY AT TOP -->
+  <nav class="navbar-fixed-top">
+   <ul class="nav nav-tabs nav-justified">
     <li role="presentation" class="active" onclick="goHome(this)">
      <a href="#"><span class="glyphicon glyphicon-home"></span></a>
     </li>
@@ -65,7 +64,7 @@
   </div>
   <div id="userpage" class="container-fluid" hidden>
    <h4 id="userMessage"></h4>
-   <h1 id="user"></h1> <!-- NEED BETTER ORIGINAL USERPAGE WHEN BLANK, POSSIBLY SEARCH BUTTON? -->
+   <h1 id="user"></h1>
    <div id="userFunction">
     <button class="btn btn-md" onclick="searchUsers()">Search Users</button>
    </div>
