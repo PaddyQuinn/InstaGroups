@@ -4,6 +4,11 @@ Padraic Michael Quinn
 pmq2101
 pmq2101@columbia.edu
 
+There are no special instructions to run my application, simply open
+up index.html and explore. I tested on a Google Chrome browser. The 
+application also works on Safari. Those are the two browsers I have 
+on my computer.
+
 I went for an elegant minimalist design with my project. The goal was
 to have an extremely functional application that was very easy to 
 navigate without much instruction. Any data displayed is only done so
@@ -83,5 +88,11 @@ below:
    whether the Instagram post being displayed is based on a user or 
    based on a tag or location, it is still the exact same type of data
    and thus should be displayed the same.
+-> On all searches the page autoscrolls to where the results start, 
+   again with simplicity for the user in mind.
+-> It is impossible to view the recent media of private users but my
+   user interface handles this. It simply displays the API error 
+   message that is returned as it does any time an API error is
+   returned.
 -> The titles in the navbar are icons to go along with the minimalist
    design but each is very clear as to what it represents.
