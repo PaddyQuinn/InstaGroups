@@ -88,8 +88,6 @@ below:
    whether the Instagram post being displayed is based on a user or 
    based on a tag or location, it is still the exact same type of data
    and thus should be displayed the same.
--> On user searches the page autoscrolls to where the results start, 
-   again with simplicity for the user in mind.
 -> It is impossible to view the recent media of private users but my
    user interface handles this. It simply displays the API error 
    message that is returned as it does any time an API error is
