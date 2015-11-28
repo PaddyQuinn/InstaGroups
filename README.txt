@@ -57,7 +57,7 @@ below:
    is displayed. The username serves as the label for the caption. If
    there is no caption nothing is displayed directly after the username.
    Then the time and likes are displayed, separatde by a heart icon. 
-   Finally, a link to the user's Instagram is displayed. There are no 
+   Finally, a link to that Instagram post is displayed. There are no 
    labels to go along with the minimalist design but it is clear what
    each part of the cell does.
 -> A separate display for up to 5 tags is not displayed. This was a UI
