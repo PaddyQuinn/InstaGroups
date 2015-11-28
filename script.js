@@ -340,7 +340,7 @@ var handleMedia = function(data) {
 		var media = data.data;
 		if (this.url.indexOf("https://api.instagram.com/v1/users/") < 0) {
 			table = $("#searchResults")[0];
-			window.scrollTo(0, 245);
+			console.log("wtf");
 		} else {
 			table = $("#userResults")[0];
 			$("#user")[0].innerHTML = data.data[0].user.username;
