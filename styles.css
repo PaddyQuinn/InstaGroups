@@ -2,7 +2,7 @@
 	border-style: groove;
 }
 
-nav, select, .btn-xs, .btn-md {
+nav, .btn-xs, .btn-md {
 	background-color: #125688;
 	color: white;
 	border: 0px;
